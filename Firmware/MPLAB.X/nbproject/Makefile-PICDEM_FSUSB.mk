@@ -79,50 +79,50 @@ ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 ${OBJECTDIR}/_ext/1472/main.o: ../main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR}/_ext/1472 
 	@${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PICKIT2=1 -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/main.o   ../main.c 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PICKIT2=1 -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include" -I"/Applications/microchip/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/main.o   ../main.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/main.o 
 	
 ${OBJECTDIR}/_ext/1472/usb_descriptors.o: ../usb_descriptors.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR}/_ext/1472 
 	@${RM} ${OBJECTDIR}/_ext/1472/usb_descriptors.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PICKIT2=1 -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_descriptors.o   ../usb_descriptors.c 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PICKIT2=1 -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include" -I"/Applications/microchip/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_descriptors.o   ../usb_descriptors.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/usb_descriptors.o 
 	
 ${OBJECTDIR}/_ext/1472/usb_device.o: ../usb_device.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR}/_ext/1472 
 	@${RM} ${OBJECTDIR}/_ext/1472/usb_device.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PICKIT2=1 -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_device.o   ../usb_device.c 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PICKIT2=1 -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include" -I"/Applications/microchip/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_device.o   ../usb_device.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/usb_device.o 
 	
 ${OBJECTDIR}/_ext/1472/usb_function_cdc.o: ../usb_function_cdc.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR}/_ext/1472 
 	@${RM} ${OBJECTDIR}/_ext/1472/usb_function_cdc.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PICKIT2=1 -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_function_cdc.o   ../usb_function_cdc.c 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PICKIT2=1 -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include" -I"/Applications/microchip/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_function_cdc.o   ../usb_function_cdc.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/usb_function_cdc.o 
 	
 else
 ${OBJECTDIR}/_ext/1472/main.o: ../main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR}/_ext/1472 
 	@${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/main.o   ../main.c 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include" -I"/Applications/microchip/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/main.o   ../main.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/main.o 
 	
 ${OBJECTDIR}/_ext/1472/usb_descriptors.o: ../usb_descriptors.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR}/_ext/1472 
 	@${RM} ${OBJECTDIR}/_ext/1472/usb_descriptors.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_descriptors.o   ../usb_descriptors.c 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include" -I"/Applications/microchip/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_descriptors.o   ../usb_descriptors.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/usb_descriptors.o 
 	
 ${OBJECTDIR}/_ext/1472/usb_device.o: ../usb_device.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR}/_ext/1472 
 	@${RM} ${OBJECTDIR}/_ext/1472/usb_device.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_device.o   ../usb_device.c 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include" -I"/Applications/microchip/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_device.o   ../usb_device.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/usb_device.o 
 	
 ${OBJECTDIR}/_ext/1472/usb_function_cdc.o: ../usb_function_cdc.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR}/_ext/1472 
 	@${RM} ${OBJECTDIR}/_ext/1472/usb_function_cdc.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_function_cdc.o   ../usb_function_cdc.c 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -I".." -I"/Users/satoshi/microchip_solutions_v2012-08-22/Microchip/Include" -I"/Applications/microchip/microchip_solutions_v2012-08-22/Microchip/Include"  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/_ext/1472/usb_function_cdc.o   ../usb_function_cdc.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/usb_function_cdc.o 
 	
 endif
