@@ -14,6 +14,18 @@
 - で PIC18F2550 用に書きなおしてビルドしただけ
 
 
+Hardwares
+---------
+- define input/output
+ RA0 LED
+ RB3 赤外線
+ RB4 sw2
+ RB5 sw3
+
+- 赤外線受信モジュール
+ PL-IRM2161-C438
+
+
 
 Mac で USBシリアル通信する方法
 ------------------------------

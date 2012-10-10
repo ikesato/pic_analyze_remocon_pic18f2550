@@ -100,50 +100,7 @@
     #define PICDEM_FS_USB
     #define CLOCK_FREQ 48000000
 
-
-    /** LED ************************************************************/
-    //#define mInitAllLEDs()      LATD &= 0xF0; TRISD &= 0xF0;
-    #define mInitAllLEDs()      TRISC &= (~0x3);
-    
-    #define mLED_1              PORTCbits.RC0
-    #define mLED_2              PORTCbits.RC1
-    #define mLED_3              PORTCbits.RC2
-    
-    #define mGetLED_1()         mLED_1
-    #define mGetLED_2()         mLED_2
-    #define mGetLED_3()         mLED_3
-
-    #define mLED_1_On()         mLED_1 = 1;
-    #define mLED_2_On()         mLED_2 = 1;
-    #define mLED_3_On()         mLED_3 = 1;
-    
-    #define mLED_1_Off()        mLED_1 = 0;
-    #define mLED_2_Off()        mLED_2 = 0;
-    #define mLED_3_Off()        mLED_3 = 0;
-    
-    #define mLED_1_Toggle()     mLED_1 = !mLED_1;
-    #define mLED_2_Toggle()     mLED_2 = !mLED_2;
-    #define mLED_3_Toggle()     mLED_3 = !mLED_3;
-    
     /** SWITCH *********************************************************/
-    #define mInitAllSwitches()  TRISBbits.TRISB4=1;TRISBbits.TRISB5=1;
-    #define mInitSwitch2()      TRISBbits.TRISB4=1;
-    #define mInitSwitch3()      TRISBbits.TRISB5=1;
     #define sw2                 PORTBbits.RB4
-    #define sw3                 PORTBbits.RB5
     
-    /** USB external transceiver interface (optional) ******************/
-    #define tris_usb_vpo        TRISBbits.TRISB3    // Output
-    #define tris_usb_vmo        TRISBbits.TRISB2    // Output
-    #define tris_usb_rcv        TRISAbits.TRISA4    // Input
-    #define tris_usb_vp         TRISCbits.TRISC5    // Input
-    #define tris_usb_vm         TRISCbits.TRISC4    // Input
-    #define tris_usb_oe         TRISCbits.TRISC1    // Output
-    
-    #define tris_usb_suspnd     TRISAbits.TRISA3    // Output
-    
-    /** I/O pin definitions ********************************************/
-    #define INPUT_PIN 1
-    #define OUTPUT_PIN 0
-
 #endif  //HARDWARE_PROFILE_PICDEM_FSUSB_H
