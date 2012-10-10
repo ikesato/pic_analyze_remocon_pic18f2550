@@ -321,6 +321,15 @@ void UserInit(void)
     TRISBbits.TRISB4=1; // SW2 input
 	TRISBbits.TRISB5=1; // SW3 input
 
+//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *256 => 21us
+//	T0CONbits.T0PS = 0x7; // prescaler 111=1:256 110=1:128 ... 001=1:4 000=1:2
+//	T0CONbits.PSA = 0;
+//	T0CONbits.T0SE = 0; // なんでもいい
+//	T0CONbits.T0CS = 0;
+//	T0CONbits.T08BIT = 0;
+//	T0CONbits.TMR0ON = 1;
+	//T0CON = 0b10000111;
+	T0CON = 0b10000000;
 }//end UserInit
 
 /********************************************************************
@@ -340,11 +349,41 @@ void UserInit(void)
  *
  * Note:            None
  *******************************************************************/
+char buff[10];
 void ProcessIO(void)
 {   
     BYTE numBytesRead;
 
-	PORTAbits.RA0 = !PORTBbits.RB3;
+	{
+		PORTAbits.RA0 = !PORTBbits.RB3;
+	}
+	{// timer
+		WORD_VAL t;
+		t.byte.LB = TMR0L;
+		t.byte.HB = TMR0H;
+		t.Val;
+		sprintf(buff, "|%u\r\n", t.Val);
+		if(mUSBUSARTIsTxTrfReady())
+		{
+			putsUSBUSART(buff);
+			stringPrinted = TRUE;
+		}
+		//TMR0H = 0;
+		//TMR0L = 0;
+	}
+
+//	while(1){
+//	    // ポートA,B,Cをオンにする
+//		PORTAbits.RA0 = 1;
+//	    // 1秒待つ
+//	    Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240);
+//	
+//	
+//	    // ポートA,B,Cをオフにする
+//		PORTAbits.RA0 = 0;
+//	    // 1秒待つ
+//	    Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240);
+//	}
 
     // User Application USB tasks
     if((USBDeviceState < CONFIGURED_STATE)||(USBSuspendControl==1)) return;
