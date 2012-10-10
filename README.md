@@ -12,6 +12,7 @@
 - コンパイルスイッチは PICDEM FSUSB
 - この環境は PIC18F4550 用だったけど動いた
 - で PIC18F2550 用に書きなおしてビルドしただけ
+- CPU クロックは 48MHz
 
 
 Hardwares
