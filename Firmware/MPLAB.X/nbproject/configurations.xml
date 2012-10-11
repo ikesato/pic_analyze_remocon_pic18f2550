@@ -98,11 +98,12 @@
         <property key="cod-file" value="false"/>
         <property key="extra-lib-directories" value=""/>
         <property key="hex-output-format" value="INHX32"/>
-        <property key="map-file" value=""/>
+        <property key="map-file" value="hoge.map"/>
       </C18-LD>
       <C18LanguageToolchain>
       </C18LanguageToolchain>
       <PICkit2PlatformTool>
+        <property key="pk2settings.setvddvoltage" value="5.00"/>
       </PICkit2PlatformTool>
     </conf>
   </confs>

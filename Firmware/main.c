@@ -52,6 +52,7 @@
 /** INCLUDES *******************************************************/
 #include "./USB/usb.h"
 #include "./USB/usb_function_cdc.h"
+#include <timers.h>
 
 #include "HardwareProfile.h"
 
@@ -117,10 +118,34 @@
 
 char USB_In_Buffer[64];
 char USB_Out_Buffer[64];
+//char USB_Out_Buffer[64]; OK
+//char USB_Out_Buffer[187]; OK
+//char USB_Out_Buffer[188]; NG
+//char USB_Out_Buffer[187]; //OK
+//char buff[10];
+//char buff[256];
+//char buff[200]; NG
+//char buff[100]; OK
+//char buff[150]; NG
+//char buff[125]; NG
+//char buff[112]; OK
+//char buff[118]; OK
+//char buff[121]; OK
+//char buff[123];OK
+//char buff[123];
+//char buff[124]; NG
+//WORD irBuff[256];
 
 BOOL stringPrinted;
 volatile BOOL buttonPressed;
 volatile BYTE buttonCount;
+
+#pragma udata NEXT_UDATA=0x200
+union {
+	WORD wBuff[127];
+	char cBuff[254];
+} buff;
+
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
 static void InitializeSystem(void);
@@ -131,6 +156,7 @@ void YourLowPriorityISRCode();
 void USBCBSendResume(void);
 void BlinkUSBStatus(void);
 void UserInit(void);
+void ReadIR(void);
 
 /** VECTOR REMAPPING ***********************************************/
 #if defined(__18CXX)
@@ -330,6 +356,11 @@ void UserInit(void)
 //	T0CONbits.TMR0ON = 1;
 	//T0CON = 0b10000111;
 	T0CON = 0b10000000;
+	T0CON = TIMER_INT_ON &
+		    T0_16BIT &
+		    T0_SOURCE_INT &
+		    T0_EDGE_RISE & // なんでもいい
+		    T0_PS_1_2;
 }//end UserInit
 
 /********************************************************************
@@ -349,28 +380,11 @@ void UserInit(void)
  *
  * Note:            None
  *******************************************************************/
-char buff[10];
 void ProcessIO(void)
 {   
     BYTE numBytesRead;
 
-	{
-		PORTAbits.RA0 = !PORTBbits.RB3;
-	}
-	{// timer
-		WORD_VAL t;
-		t.byte.LB = TMR0L;
-		t.byte.HB = TMR0H;
-		t.Val;
-		sprintf(buff, "|%u\r\n", t.Val);
-		if(mUSBUSARTIsTxTrfReady())
-		{
-			putsUSBUSART(buff);
-			stringPrinted = TRUE;
-		}
-		//TMR0H = 0;
-		//TMR0L = 0;
-	}
+	ReadIR();
 
 //	while(1){
 //	    // ポートA,B,Cをオンにする
@@ -388,51 +402,98 @@ void ProcessIO(void)
     // User Application USB tasks
     if((USBDeviceState < CONFIGURED_STATE)||(USBSuspendControl==1)) return;
 
-    if(buttonPressed)
-    {
-        if(stringPrinted == FALSE)
-        {
-            if(mUSBUSARTIsTxTrfReady())
-            {
-                putrsUSBUSART("Button Pressed -- \r\n");
-                stringPrinted = TRUE;
-            }
-        }
-    }
-    else
-    {
-        stringPrinted = FALSE;
-    }
+//	if(buttonPressed)
+//	{
+//	    if(stringPrinted == FALSE)
+//	    {
+//	        if(mUSBUSARTIsTxTrfReady())
+//	        {
+//	            putrsUSBUSART("Button Pressed -- \r\n");
+//	            stringPrinted = TRUE;
+//	        }
+//	    }
+//	}
+//	else
+//	{
+//	    stringPrinted = FALSE;
+//	}
 
-    if(USBUSARTIsTxTrfReady())
-    {
-		numBytesRead = getsUSBUSART(USB_Out_Buffer,64);
-		if(numBytesRead != 0)
-		{
-			BYTE i;
-	        
-			for(i=0;i<numBytesRead;i++)
-			{
-				switch(USB_Out_Buffer[i])
-				{
-					case 0x0A:
-					case 0x0D:
-						USB_In_Buffer[i] = USB_Out_Buffer[i];
-						break;
-					default:
-						USB_In_Buffer[i] = USB_Out_Buffer[i] + 1;
-						break;
-				}
-
-			}
-
-			putUSBUSART(USB_In_Buffer,numBytesRead);
-		}
-	}
+//	if(USBUSARTIsTxTrfReady())
+//	{
+//		numBytesRead = getsUSBUSART(USB_Out_Buffer,64);
+//		if(numBytesRead != 0)
+//		{
+//			BYTE i;
+//	        
+//			for(i=0;i<numBytesRead;i++)
+//			{
+//				switch(USB_Out_Buffer[i])
+//				{
+//					case 0x0A:
+//					case 0x0D:
+//						USB_In_Buffer[i] = USB_Out_Buffer[i];
+//						break;
+//					default:
+//						USB_In_Buffer[i] = USB_Out_Buffer[i] + 1;
+//						break;
+//				}
+//	
+//			}
+//	
+//			putUSBUSART(USB_In_Buffer,numBytesRead);
+//		}
+//	}
 
     CDCTxService();
 }		//end ProcessIO
 
+void ReadIR(void)
+{
+	unsigned int t;
+	WORD *pw = buff.wBuff;
+	BYTE hilo;
+	BYTE len;
+	BYTE i;
+
+	if (PORTBbits.RB3 == 1)
+		return;
+
+	//TMR0H=0; TMR0L=0; // 順番重要
+	WriteTimer0(0);
+	hilo = PORTBbits.RB3;
+
+	// なにか信号があった
+
+	while (1)
+	{
+		PORTAbits.RA0 = !hilo;
+		while (PORTBbits.RB3 == hilo) {
+			t = ReadTimer0();
+			//if (hilo == 1 && t > 60000)
+			if (t > 32760)
+				goto next;
+		}
+		t = ReadTimer0();
+		WriteTimer0(0);
+		*pw++ = t;
+		hilo = !hilo;
+	}
+ next:
+
+	len = (pw - buff.wBuff)/2;
+	for (i=0;i<len;i++) {
+		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
+		sprintf(USB_In_Buffer, (far rom char*)"|%u", buff.wBuff[i]);
+		putsUSBUSART(USB_In_Buffer);
+	}
+	while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
+	sprintf(USB_In_Buffer, (far rom char*)"\r\n");
+	putsUSBUSART(USB_In_Buffer);
+
+//	{
+//		PORTAbits.RA0 = !PORTBbits.RB3;
+//	}
+}
 
 
 // ******************************************************************************************************
