@@ -205,6 +205,9 @@ void ReadIR(void);
 	#pragma interrupt YourHighPriorityISRCode
 	void YourHighPriorityISRCode()
 	{
+		//INTCONbits.GIEH = 0;
+		//INTCONbits.GIEH = 1;
+
 		//Check which interrupt flag caused the interrupt.
 		//Service the interrupt
 		//Clear the interrupt flag
@@ -348,6 +351,7 @@ void UserInit(void)
 	TRISBbits.TRISB5=1; // SW3 input
 
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *256 => 21us
+//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *2 => 0.16666us
 //	T0CONbits.T0PS = 0x7; // prescaler 111=1:256 110=1:128 ... 001=1:4 000=1:2
 //	T0CONbits.PSA = 0;
 //	T0CONbits.T0SE = 0; // なんでもいい
@@ -357,6 +361,7 @@ void UserInit(void)
 	//T0CON = 0b10000111;
 	T0CON = 0b10000000;
 	T0CON = TIMER_INT_ON &
+		  //TIMER_INT_OFF &
 		    T0_16BIT &
 		    T0_SOURCE_INT &
 		    T0_EDGE_RISE & // なんでもいい
@@ -460,7 +465,8 @@ void ReadIR(void)
 
 	//TMR0H=0; TMR0L=0; // 順番重要
 	WriteTimer0(0);
-	hilo = PORTBbits.RB3;
+	//hilo = PORTBbits.RB3;
+	hilo = 0;
 
 	// なにか信号があった
 
@@ -470,8 +476,11 @@ void ReadIR(void)
 		while (PORTBbits.RB3 == hilo) {
 			t = ReadTimer0();
 			//if (hilo == 1 && t > 60000)
-			if (t > 32760)
+			//if (t > 32760)
+			if (INTCONbits.TMR0IF) {
+				INTCONbits.TMR0IF = 0;
 				goto next;
+			}
 		}
 		t = ReadTimer0();
 		WriteTimer0(0);
@@ -481,13 +490,15 @@ void ReadIR(void)
  next:
 
 	len = (pw - buff.wBuff)/2;
+	if (len==0)
+		return;
 	for (i=0;i<len;i++) {
 		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
 		sprintf(USB_In_Buffer, (far rom char*)"|%u", buff.wBuff[i]);
 		putsUSBUSART(USB_In_Buffer);
 	}
 	while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
-	sprintf(USB_In_Buffer, (far rom char*)"\r\n");
+	sprintf(USB_In_Buffer, (far rom char*)"|\r\n");
 	putsUSBUSART(USB_In_Buffer);
 
 //	{
