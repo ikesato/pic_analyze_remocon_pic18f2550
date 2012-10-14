@@ -149,9 +149,11 @@ volatile BOOL buttonPressed;
 volatile BYTE buttonCount;
 
 #pragma udata NEXT_UDATA=0x200
+#define BUFF_WSIZE 127
+#define BUFF_CSIZE 254
 union {
-	WORD wBuff[127];
-	char cBuff[254];
+	WORD wBuff[BUFF_WSIZE];
+	char cBuff[BUFF_CSIZE];
 } buff;
 
 
@@ -358,8 +360,14 @@ void UserInit(void)
 	SW_TRIS   = 1; // SW input
 	LED_PORT  = 0;
 
-//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *256 => 21us
-//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *2 => 0.16666us
+//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  2 =>  0.16666us -> *65536 = 10.923ms
+//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  4 =>  0.33333us -> *65536 = 21.845ms
+//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 16 =>  1.33333us -> *65536 = 87.381ms
+//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 32 =>  2.66666us -> *65536 = 174.76ms
+//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 64 =>  5.33333us -> *65536 = 349.5ms
+//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *128 => 10.66666us -> *65536 = 699ms
+//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *256 => 21.33333us -> *65536 = 1398ms
+
 //	T0CONbits.T0PS = 0x7; // prescaler 111=1:256 110=1:128 ... 001=1:4 000=1:2
 //	T0CONbits.PSA = 0;
 //	T0CONbits.T0SE = 0; // なんでもいい
@@ -373,7 +381,7 @@ void UserInit(void)
 		    T0_16BIT &
 		    T0_SOURCE_INT &
 		    T0_EDGE_RISE & // なんでもいい
-		    T0_PS_1_2;
+		    T0_PS_1_64;
 }//end UserInit
 
 /********************************************************************
@@ -396,6 +404,14 @@ void UserInit(void)
 void ProcessIO(void)
 {   
     BYTE numBytesRead;
+
+//	{
+//		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
+//		sprintf(USB_In_Buffer, (far rom char*)"P0 INTCON=%02x TMR0=%u\r\n", INTCON, ReadTimer0());
+//		putsUSBUSART(USB_In_Buffer);
+//		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
+//	}
+
 
 	ReadIR();
 
@@ -462,52 +478,64 @@ void ProcessIO(void)
 
 void ReadIR(void)
 {
-	unsigned int t;
+	WORD t;
 	WORD *pw = buff.wBuff;
 	BYTE hilo;
 	BYTE len;
 	BYTE i;
+	BYTE exit;
 
 	if (IR_PORT == 1)
 		return;
 
 	//TMR0H=0; TMR0L=0; // 順番重要
 	WriteTimer0(0);
+	INTCONbits.TMR0IF = 0;
 	//hilo = IR_PORT;
 	hilo = 0;
 
 	// なにか信号があった
 
-	while (1)
+	exit = 0;
+	for (i=0; i<BUFF_WSIZE && exit==0; i++)
 	{
 		LED_PORT = !hilo;
 		while (IR_PORT == hilo) {
 			t = ReadTimer0();
 			//if (hilo == 1 && t > 60000)
 			//if (t > 32760)
-			if (INTCONbits.TMR0IF) {
+			if (INTCONbits.TMR0IF || (t > 60000)) {
+			//if (INTCONbits.TMR0IF) {
 				INTCONbits.TMR0IF = 0;
-				goto next;
+				exit=1;
+				break;
 			}
 		}
 		t = ReadTimer0();
 		WriteTimer0(0);
-		*pw++ = t;
+		buff.wBuff[i] = t;
 		hilo = !hilo;
 	}
  next:
 
-	len = (pw - buff.wBuff)/2;
+	//len = (pw - buff.wBuff)/2;
+	//len = (pw - buff.wBuff);
+	len = i;
 	if (len==0)
 		return;
+	if (len==BUFF_WSIZE)
+		len--;
 	for (i=0;i<len;i++) {
 		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
-		sprintf(USB_In_Buffer, (far rom char*)"|%u", buff.wBuff[i]);
+		sprintf(USB_In_Buffer, (far rom char*)"|%c%u",
+				(i&0x1) == 0 ? 'H' : 'L',
+				buff.wBuff[i]);
 		putsUSBUSART(USB_In_Buffer);
 	}
 	while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
 	sprintf(USB_In_Buffer, (far rom char*)"|\r\n");
 	putsUSBUSART(USB_In_Buffer);
+	while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
 
 //	{
 //		LED_PORT = !IR_PORT;
