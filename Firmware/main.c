@@ -111,6 +111,14 @@
 
 #include "HardwareProfile.h"
 
+#define LED_TRIS  TRISAbits.TRISA0
+#define IR_TRIS   TRISBbits.TRISB3
+#define SW_TRIS   TRISBbits.TRISB4
+#define LED_PORT  PORTAbits.RA0
+#define IR_PORT   PORTBbits.RB3
+#define SW_PORT   PORTBbits.RB4
+
+
 /** V A R I A B L E S ********************************************************/
 #if defined(__18CXX)
     #pragma udata
@@ -345,10 +353,10 @@ void UserInit(void)
     stringPrinted = TRUE;
 
 	// initialize
-    TRISAbits.TRISA0=0; // LED output
-    TRISBbits.TRISB3=1; // IR  input
-    TRISBbits.TRISB4=1; // SW2 input
-	TRISBbits.TRISB5=1; // SW3 input
+	LED_TRIS  = 0; // LED output
+	IR_TRIS   = 1; // IR input
+	SW_TRIS   = 1; // SW input
+	LED_PORT  = 0;
 
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *256 => 21us
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *2 => 0.16666us
@@ -393,13 +401,13 @@ void ProcessIO(void)
 
 //	while(1){
 //	    // ポートA,B,Cをオンにする
-//		PORTAbits.RA0 = 1;
+//		LED_PORT = 1;
 //	    // 1秒待つ
 //	    Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240);
 //	
 //	
 //	    // ポートA,B,Cをオフにする
-//		PORTAbits.RA0 = 0;
+//		LED_PORT = 0;
 //	    // 1秒待つ
 //	    Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240);
 //	}
@@ -460,20 +468,20 @@ void ReadIR(void)
 	BYTE len;
 	BYTE i;
 
-	if (PORTBbits.RB3 == 1)
+	if (IR_PORT == 1)
 		return;
 
 	//TMR0H=0; TMR0L=0; // 順番重要
 	WriteTimer0(0);
-	//hilo = PORTBbits.RB3;
+	//hilo = IR_PORT;
 	hilo = 0;
 
 	// なにか信号があった
 
 	while (1)
 	{
-		PORTAbits.RA0 = !hilo;
-		while (PORTBbits.RB3 == hilo) {
+		LED_PORT = !hilo;
+		while (IR_PORT == hilo) {
 			t = ReadTimer0();
 			//if (hilo == 1 && t > 60000)
 			//if (t > 32760)
@@ -502,7 +510,7 @@ void ReadIR(void)
 	putsUSBUSART(USB_In_Buffer);
 
 //	{
-//		PORTAbits.RA0 = !PORTBbits.RB3;
+//		LED_PORT = !IR_PORT;
 //	}
 }
 
