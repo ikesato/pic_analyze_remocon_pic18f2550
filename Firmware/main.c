@@ -111,12 +111,14 @@
 
 #include "HardwareProfile.h"
 
-#define LED_TRIS  TRISAbits.TRISA0
-#define IR_TRIS   TRISBbits.TRISB3
-#define SW_TRIS   TRISBbits.TRISB4
-#define LED_PORT  PORTAbits.RA0
-#define IR_PORT   PORTBbits.RB3
-#define SW_PORT   PORTBbits.RB4
+#define LED_TRIS    TRISAbits.TRISA0
+#define IR_TRIS     TRISBbits.TRISB3
+#define SW_TRIS     TRISBbits.TRISB4
+#define IRLED_TRIS  TRISCbits.TRISC2
+#define LED_PORT    PORTAbits.RA0
+#define IR_PORT     PORTBbits.RB3
+#define SW_PORT     PORTBbits.RB4
+#define IRLED_PORT  PORTCbits.RC2
 
 
 /** V A R I A B L E S ********************************************************/
@@ -147,6 +149,8 @@ char USB_Out_Buffer[64];
 BOOL stringPrinted;
 volatile BOOL buttonPressed;
 volatile BYTE buttonCount;
+BYTE bufferLen;
+
 
 #pragma udata NEXT_UDATA=0x200
 #define BUFF_WSIZE 127
@@ -167,6 +171,7 @@ void USBCBSendResume(void);
 void BlinkUSBStatus(void);
 void UserInit(void);
 void ReadIR(void);
+void SendIR(void);
 
 /** VECTOR REMAPPING ***********************************************/
 #if defined(__18CXX)
@@ -351,14 +356,17 @@ void UserInit(void)
 {
     //Initialize all of the debouncing variables
     buttonCount = 0;
-    buttonPressed = FALSE;
+    buttonPressed = 0;
     stringPrinted = TRUE;
+	bufferLen = 0;
 
 	// initialize
 	LED_TRIS  = 0; // LED output
 	IR_TRIS   = 1; // IR input
 	SW_TRIS   = 1; // SW input
+	IRLED_TRIS= 0; // IRLED input
 	LED_PORT  = 0;
+	IRLED_PORT= 0;
 
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  2 =>  0.16666us -> *65536 = 10.923ms
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  4 =>  0.33333us -> *65536 = 21.845ms
@@ -414,6 +422,7 @@ void ProcessIO(void)
 
 
 	ReadIR();
+	SendIR();
 
 //	while(1){
 //	    // ポートA,B,Cをオンにする
@@ -479,9 +488,7 @@ void ProcessIO(void)
 void ReadIR(void)
 {
 	WORD t;
-	WORD *pw = buff.wBuff;
 	BYTE hilo;
-	BYTE len;
 	BYTE i;
 	BYTE exit;
 
@@ -516,16 +523,14 @@ void ReadIR(void)
 		buff.wBuff[i] = t;
 		hilo = !hilo;
 	}
- next:
+	LED_PORT = 0;
 
-	//len = (pw - buff.wBuff)/2;
-	//len = (pw - buff.wBuff);
-	len = i;
-	if (len==0)
+	bufferLen = i;
+	if (bufferLen==0)
 		return;
-	if (len==BUFF_WSIZE)
-		len--;
-	for (i=0;i<len;i++) {
+	if (bufferLen==BUFF_WSIZE)
+		bufferLen--;
+	for (i=0;i<bufferLen;i++) {
 		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
 		sprintf(USB_In_Buffer, (far rom char*)"|%c%u",
 				(i&0x1) == 0 ? 'H' : 'L',
@@ -540,6 +545,36 @@ void ReadIR(void)
 //	{
 //		LED_PORT = !IR_PORT;
 //	}
+}
+
+void SendIR(void)
+{
+	WORD t;
+	BYTE hilo;
+	BYTE i;
+
+	if (buttonPressed == 0)
+		return;
+
+	while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
+	sprintf(USB_In_Buffer, (far rom char*)"send ir\r\n");
+	putsUSBUSART(USB_In_Buffer);
+	while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
+
+	WriteTimer0(0);
+	INTCONbits.TMR0IF = 0;
+	LED_PORT = IRLED_PORT = 1;
+	for (i=0;i<bufferLen;i++) {
+		do {
+			t = ReadTimer0();
+		} while(t < buff.wBuff[i]);
+		WriteTimer0(0);
+		LED_PORT = IRLED_PORT = (i&1);
+	}
+	LED_PORT = IRLED_PORT = 0;
+
+	// wait 10msec (250msec == 240count)
+    Delay10KTCYx(10);
 }
 
 
@@ -663,7 +698,7 @@ void USBCB_SOF_Handler(void)
     // Callback caller is already doing that.
 
     //This is reverse logic since the pushbutton is active low
-    if(buttonPressed == sw2)
+    if(buttonPressed == SW_PORT)
     {
         if(buttonCount != 0)
         {
@@ -672,7 +707,7 @@ void USBCB_SOF_Handler(void)
         else
         {
             //This is reverse logic since the pushbutton is active low
-            buttonPressed = !sw2;
+            buttonPressed = !SW_PORT;
 
             //Wait 100ms before the next press can be generated
             buttonCount = 100;
