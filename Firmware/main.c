@@ -53,6 +53,7 @@
 #include "./USB/usb.h"
 #include "./USB/usb_function_cdc.h"
 #include <timers.h>
+#include <delays.h>
 
 #include "HardwareProfile.h"
 
@@ -172,6 +173,7 @@ void BlinkUSBStatus(void);
 void UserInit(void);
 void ReadIR(void);
 void SendIR(void);
+int WaitToReadySerial(void);
 
 /** VECTOR REMAPPING ***********************************************/
 #if defined(__18CXX)
@@ -370,6 +372,7 @@ void UserInit(void)
 
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  2 =>  0.16666us -> *65536 = 10.923ms
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  4 =>  0.33333us -> *65536 = 21.845ms
+//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  8 =>  0.66666us -> *65536 = 43.69ms
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 16 =>  1.33333us -> *65536 = 87.381ms
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 32 =>  2.66666us -> *65536 = 174.76ms
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 64 =>  5.33333us -> *65536 = 349.5ms
@@ -383,13 +386,19 @@ void UserInit(void)
 //	T0CONbits.T08BIT = 0;
 //	T0CONbits.TMR0ON = 1;
 	//T0CON = 0b10000111;
-	T0CON = 0b10000000;
+	//T0CON = 0b10000000;
 	T0CON = TIMER_INT_ON &
 		  //TIMER_INT_OFF &
 		    T0_16BIT &
 		    T0_SOURCE_INT &
 		    T0_EDGE_RISE & // なんでもいい
 		    T0_PS_1_64;
+
+	// max 43.69
+	T1CON = TIMER_INT_ON &
+		    T1_16BIT_RW &
+		    T1_SOURCE_INT &
+		    T1_PS_1_8;
 }//end UserInit
 
 /********************************************************************
@@ -419,7 +428,6 @@ void ProcessIO(void)
 //		putsUSBUSART(USB_In_Buffer);
 //		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
 //	}
-
 
 	ReadIR();
 	SendIR();
@@ -530,17 +538,19 @@ void ReadIR(void)
 		return;
 	if (bufferLen==BUFF_WSIZE)
 		bufferLen--;
+	if (!WaitToReadySerial())
+		return;
 	for (i=0;i<bufferLen;i++) {
-		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
+		if (!WaitToReadySerial()) return;
 		sprintf(USB_In_Buffer, (far rom char*)"|%c%u",
 				(i&0x1) == 0 ? 'H' : 'L',
 				buff.wBuff[i]);
 		putsUSBUSART(USB_In_Buffer);
 	}
-	while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
+	if (!WaitToReadySerial()) return;
 	sprintf(USB_In_Buffer, (far rom char*)"|\r\n");
 	putsUSBUSART(USB_In_Buffer);
-	while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
+	if (!WaitToReadySerial()) return;
 
 //	{
 //		LED_PORT = !IR_PORT;
@@ -549,34 +559,61 @@ void ReadIR(void)
 
 void SendIR(void)
 {
-	WORD t;
+	WORD t,wait;
 	BYTE hilo;
 	BYTE i;
 
 	if (buttonPressed == 0)
 		return;
 
-	while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
-	sprintf(USB_In_Buffer, (far rom char*)"send ir\r\n");
-	putsUSBUSART(USB_In_Buffer);
-	while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
-
 	WriteTimer0(0);
 	INTCONbits.TMR0IF = 0;
-	LED_PORT = IRLED_PORT = 1;
+	//LED_PORT = IRLED_PORT = 1;
 	for (i=0;i<bufferLen;i++) {
+		//OutIRLED(!(i&1), buff.wBuff[i]);
+		hilo = !(i&1);
+		wait = buff.wBuff[i];
 		do {
+			LED_PORT = IRLED_PORT = hilo;
+			Delay10TCYx(17);
 			t = ReadTimer0();
-		} while(t < buff.wBuff[i]);
+			if (t >= wait)
+				break;
+			LED_PORT = IRLED_PORT = 0;
+			Delay10TCYx(17);
+			t = ReadTimer0();
+		} while(t < wait);
+
 		WriteTimer0(0);
 		LED_PORT = IRLED_PORT = (i&1);
 	}
 	LED_PORT = IRLED_PORT = 0;
 
+	if (!WaitToReadySerial()) return;
+	sprintf(USB_In_Buffer, (far rom char*)"sended ir\r\n");
+	putsUSBUSART(USB_In_Buffer);
+	if (!WaitToReadySerial()) return;
+
 	// wait 10msec (250msec == 240count)
     Delay10KTCYx(10);
 }
 
+/**
+ * シリアル・ポートの Ready を待つ
+ * timer1 を使ってオーバフローならば 0 を返す
+ * Ready になれば 1 を返す
+ */
+int WaitToReadySerial(void)
+{
+	WriteTimer1(0);
+	PIR1bits.TMR1IF = 0;
+	while(PIR1bits.TMR1IF==0) {
+		if (mUSBUSARTIsTxTrfReady())
+			return 1;
+		CDCTxService();
+	}
+	return 0;
+}
 
 // ******************************************************************************************************
 // ************** USB Callback Functions ****************************************************************
