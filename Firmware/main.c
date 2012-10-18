@@ -128,22 +128,26 @@
 // http://tylercsf.blog123.fc2.com/blog-entry-189.html
 #pragma udata USER_RAM6=0x600
 #define BUFF_U1_WSIZE 0x100
-#define BUFF_U1_CSIZE 0x200
+#define BUFF_U1_BSIZE 0x200
 union {
 	WORD wBuff[BUFF_U1_WSIZE];
-	char cBuff[BUFF_U1_CSIZE];
+	BYTE bBuff[BUFF_U1_BSIZE];
 } buff_user1;
 
 #pragma udata USER_RAM2=0x200
 #define BUFF_U2_WSIZE 0x80
-#define BUFF_U2_CSIZE 0x100
+#define BUFF_U2_BSIZE 0x100
 union {
 	WORD wBuff[BUFF_U2_WSIZE];
-	char cBuff[BUFF_U2_CSIZE];
+	BYTE bBuff[BUFF_U2_BSIZE];
 } buff_user2;
 
 #define BUFF_WSIZE (BUFF_U1_WSIZE+BUFF_U2_WSIZE)
-#define BUFF_CSIZE (BUFF_U1_CSIZE+BUFF_U2_CSIZE)
+#define BUFF_BSIZE (BUFF_U1_BSIZE+BUFF_U2_BSIZE)
+
+#define BUFF_EOF 0xFFFF
+#define BUFF_BW_BYTE 0xFFFE
+#define BUFF_BW_WORD 0xFFFD
 
 #if defined(__18CXX)
     #pragma udata
@@ -155,7 +159,6 @@ char USB_Out_Buffer[64];
 BOOL stringPrinted;
 volatile BOOL buttonPressed;
 volatile BYTE buttonCount;
-WORD bufferLen;
 
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
@@ -170,6 +173,10 @@ void UserInit(void);
 void ReadIR(void);
 void SendIR(void);
 int WaitToReadySerial(void);
+WORD ReadBuffer(WORD *pos, WORD *byteOrWord);
+BYTE WriteBuffer(WORD v, WORD *pos, WORD *byteOrWord);
+BYTE ReadBYTEBuffer(WORD i);
+void WriteBYTEBuffer(WORD i, BYTE v);
 WORD ReadWORDBuffer(WORD i);
 void WriteWORDBuffer(WORD i, WORD v);
 
@@ -358,7 +365,6 @@ void UserInit(void)
     buttonCount = 0;
     buttonPressed = 0;
     stringPrinted = TRUE;
-	bufferLen = 0;
 
 	// initialize
 	LED_TRIS  = 0; // LED output
@@ -495,81 +501,80 @@ void ReadIR(void)
 {
 	WORD t;
 	BYTE hilo;
-	WORD i;
 	BYTE exit;
+	WORD byteOrWord; // 0:未設定 1:byte 2:word
+	WORD pos;
 
 	if (IR_PORT == 1)
 		return;
 
-	//TMR0H=0; TMR0L=0; // 順番重要
-	WriteTimer0(0);
-	INTCONbits.TMR0IF = 0;
-	//hilo = IR_PORT;
-	hilo = 0;
-
 	// なにか信号があった
 
+	WriteTimer0(0);
+	INTCONbits.TMR0IF = 0;
+	hilo = 0;
+
+	pos = 0;
+	byteOrWord = 0;
 	exit = 0;
-	for (i=0; i<BUFF_WSIZE && exit==0; i++)
-	{
+	while (pos<BUFF_WSIZE && exit==0) {
 		LED_PORT = !hilo;
-		while (IR_PORT == hilo) {
+		do {
 			t = ReadTimer0();
-			//if (hilo == 1 && t > 60000)
-			//if (t > 32760)
 			if (INTCONbits.TMR0IF || (t > 60000)) {
-			//if (INTCONbits.TMR0IF) {
+				t = 60000;
 				INTCONbits.TMR0IF = 0;
 				exit=1;
 				break;
 			}
-		}
-		t = ReadTimer0();
+		} while (IR_PORT == hilo);
 		WriteTimer0(0);
-		WriteWORDBuffer(i,t);
+		exit = WriteBuffer(t,&pos,&byteOrWord);
 		hilo = !hilo;
 	}
 	LED_PORT = 0;
 
-	bufferLen = i;
-	if (bufferLen==0)
-		return;
-	if (bufferLen==BUFF_WSIZE)
-		bufferLen--;
 	if (!WaitToReadySerial())
 		return;
-	for (i=0;i<bufferLen;i++) {
+
+	hilo = 1;
+	pos = 0;
+	byteOrWord = 0;
+	while (1) {
 		if (!WaitToReadySerial()) return;
+		t = ReadBuffer(&pos,&byteOrWord);
+		if (t==BUFF_EOF)
+			break;
 		sprintf(USB_In_Buffer, (far rom char*)"|%c%u",
-				(i&0x1) == 0 ? 'H' : 'L',
-				ReadWORDBuffer(i));
+				hilo == 0 ? 'H' : 'L',
+				t);
 		putsUSBUSART(USB_In_Buffer);
+		hilo=!hilo;
 	}
 	if (!WaitToReadySerial()) return;
 	sprintf(USB_In_Buffer, (far rom char*)"|\r\n");
 	putsUSBUSART(USB_In_Buffer);
 	if (!WaitToReadySerial()) return;
-
-//	{
-//		LED_PORT = !IR_PORT;
-//	}
 }
 
 void SendIR(void)
 {
 	WORD t,wait;
 	BYTE hilo;
-	WORD i;
+	WORD pos;
+	WORD byteOrWord; // 0:未設定 1:byte 2:word
 
 	if (buttonPressed == 0)
 		return;
 
 	WriteTimer0(0);
 	INTCONbits.TMR0IF = 0;
-	//LED_PORT = IRLED_PORT = 1;
-	for (i=0;i<bufferLen;i++) {
-		hilo = !(i&1);
-		wait = ReadWORDBuffer(i);
+
+	hilo = 1;
+	pos = 0;
+	byteOrWord = 0;
+	while (1) {
+		wait = ReadBuffer(&pos,&byteOrWord);
 		do {
 			LED_PORT = IRLED_PORT = hilo;
 			Delay10TCYx(17);
@@ -582,7 +587,8 @@ void SendIR(void)
 		} while(t < wait);
 
 		WriteTimer0(0);
-		LED_PORT = IRLED_PORT = (i&1);
+		hilo = !hilo;
+		LED_PORT = IRLED_PORT = hilo;
 	}
 	LED_PORT = IRLED_PORT = 0;
 
@@ -610,6 +616,98 @@ int WaitToReadySerial(void)
 		CDCTxService();
 	}
 	return 0;
+}
+
+WORD ReadBuffer(WORD *pos, WORD *byteOrWord)
+{
+	BYTE lo = ReadBYTEBuffer(*pos);
+	BYTE hi = ReadBYTEBuffer((*pos)+1);
+	WORD hilo = (hi<<8)|lo;
+	switch (hilo) {
+		case BUFF_BW_BYTE:
+			(*pos)+=2;
+			lo = ReadBYTEBuffer(*pos);
+			(*pos)++;
+			*byteOrWord = BUFF_BW_BYTE;
+			return lo;
+		case BUFF_BW_WORD:
+			(*pos)+=2;
+			lo = ReadBYTEBuffer(*pos);
+			(*pos)++;
+			hi = ReadBYTEBuffer(*pos);
+			(*pos)++;
+			*byteOrWord = BUFF_BW_WORD;
+			return (hi<<8)|lo;
+		case BUFF_EOF:
+			return BUFF_EOF;
+	}
+	if (*byteOrWord == BUFF_BW_BYTE) {
+		(*pos)++;
+		return lo;
+	} else {
+		(*pos)+=2;
+		return hilo;
+	}
+}
+
+BYTE WriteBuffer(WORD v, WORD *pos, WORD *byteOrWord)
+{
+	WORD lastBW = *byteOrWord;
+	BYTE hi,lo;
+	if (v <= 0xFF)
+		*byteOrWord = BUFF_BW_BYTE;
+	else
+		*byteOrWord = BUFF_BW_WORD;
+	if (lastBW != *byteOrWord) {
+		hi = (*byteOrWord)>>8;
+		lo = (*byteOrWord)&0xFF;
+		WriteBYTEBuffer(*pos, lo);
+		(*pos)++;
+		WriteBYTEBuffer(*pos, hi);
+		(*pos)++;
+	}
+	if (v <= 0xFF) {
+		WriteBYTEBuffer(*pos, (BYTE)v);
+		(*pos)++;
+	} else {
+		hi = v>>8;
+		lo = v&0xFF;
+		WriteBYTEBuffer(*pos, lo);
+		(*pos)++;
+		WriteBYTEBuffer(*pos, hi);
+		(*pos)++;
+	}
+	if ((*pos) >= (BUFF_U1_BSIZE+BUFF_U2_BSIZE))
+		return 1;
+	return 0;
+}
+
+BYTE ReadBYTEBuffer(WORD i)
+{
+	BYTE *p;
+	if (i<BUFF_U1_BSIZE) {
+		p = buff_user1.bBuff;
+	} else if (i<(BUFF_U1_BSIZE+BUFF_U2_BSIZE)) {
+		p = buff_user2.bBuff;
+		i -= BUFF_U1_BSIZE;
+	} else {
+		return 0xff;
+	}
+	return p[i];
+}
+
+void WriteBYTEBuffer(WORD i, BYTE v)
+{
+	BYTE *p;
+	if (i<BUFF_U1_BSIZE) {
+		p = buff_user1.bBuff;
+	} else if (i<BUFF_U1_BSIZE+BUFF_U2_BSIZE) {
+		p = buff_user2.bBuff;
+		i -= BUFF_U1_BSIZE;
+	} else {
+		return;
+	}
+	p[i] = v;
 }
 
 WORD ReadWORDBuffer(WORD i)
