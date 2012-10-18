@@ -123,43 +123,39 @@
 
 
 /** V A R I A B L E S ********************************************************/
+// 順番重要:先にアドレス順で後の udata から定義するとバンク内にきちんと収まる
+//          これを udata の後に書くと収まらなくなる
+// http://tylercsf.blog123.fc2.com/blog-entry-189.html
+#pragma udata USER_RAM6=0x600
+#define BUFF_U1_WSIZE 0x100
+#define BUFF_U1_CSIZE 0x200
+union {
+	WORD wBuff[BUFF_U1_WSIZE];
+	char cBuff[BUFF_U1_CSIZE];
+} buff_user1;
+
+#pragma udata USER_RAM2=0x200
+#define BUFF_U2_WSIZE 0x80
+#define BUFF_U2_CSIZE 0x100
+union {
+	WORD wBuff[BUFF_U2_WSIZE];
+	char cBuff[BUFF_U2_CSIZE];
+} buff_user2;
+
+#define BUFF_WSIZE (BUFF_U1_WSIZE+BUFF_U2_WSIZE)
+#define BUFF_CSIZE (BUFF_U1_CSIZE+BUFF_U2_CSIZE)
+
 #if defined(__18CXX)
     #pragma udata
 #endif
 
 char USB_In_Buffer[64];
 char USB_Out_Buffer[64];
-//char USB_Out_Buffer[64]; OK
-//char USB_Out_Buffer[187]; OK
-//char USB_Out_Buffer[188]; NG
-//char USB_Out_Buffer[187]; //OK
-//char buff[10];
-//char buff[256];
-//char buff[200]; NG
-//char buff[100]; OK
-//char buff[150]; NG
-//char buff[125]; NG
-//char buff[112]; OK
-//char buff[118]; OK
-//char buff[121]; OK
-//char buff[123];OK
-//char buff[123];
-//char buff[124]; NG
-//WORD irBuff[256];
 
 BOOL stringPrinted;
 volatile BOOL buttonPressed;
 volatile BYTE buttonCount;
-BYTE bufferLen;
-
-
-#pragma udata NEXT_UDATA=0x200
-#define BUFF_WSIZE 127
-#define BUFF_CSIZE 254
-union {
-	WORD wBuff[BUFF_WSIZE];
-	char cBuff[BUFF_CSIZE];
-} buff;
+WORD bufferLen;
 
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
@@ -174,6 +170,8 @@ void UserInit(void);
 void ReadIR(void);
 void SendIR(void);
 int WaitToReadySerial(void);
+WORD ReadWORDBuffer(WORD i);
+void WriteWORDBuffer(WORD i, WORD v);
 
 /** VECTOR REMAPPING ***********************************************/
 #if defined(__18CXX)
@@ -497,7 +495,7 @@ void ReadIR(void)
 {
 	WORD t;
 	BYTE hilo;
-	BYTE i;
+	WORD i;
 	BYTE exit;
 
 	if (IR_PORT == 1)
@@ -528,7 +526,7 @@ void ReadIR(void)
 		}
 		t = ReadTimer0();
 		WriteTimer0(0);
-		buff.wBuff[i] = t;
+		WriteWORDBuffer(i,t);
 		hilo = !hilo;
 	}
 	LED_PORT = 0;
@@ -544,7 +542,7 @@ void ReadIR(void)
 		if (!WaitToReadySerial()) return;
 		sprintf(USB_In_Buffer, (far rom char*)"|%c%u",
 				(i&0x1) == 0 ? 'H' : 'L',
-				buff.wBuff[i]);
+				ReadWORDBuffer(i));
 		putsUSBUSART(USB_In_Buffer);
 	}
 	if (!WaitToReadySerial()) return;
@@ -561,7 +559,7 @@ void SendIR(void)
 {
 	WORD t,wait;
 	BYTE hilo;
-	BYTE i;
+	WORD i;
 
 	if (buttonPressed == 0)
 		return;
@@ -570,9 +568,8 @@ void SendIR(void)
 	INTCONbits.TMR0IF = 0;
 	//LED_PORT = IRLED_PORT = 1;
 	for (i=0;i<bufferLen;i++) {
-		//OutIRLED(!(i&1), buff.wBuff[i]);
 		hilo = !(i&1);
-		wait = buff.wBuff[i];
+		wait = ReadWORDBuffer(i);
 		do {
 			LED_PORT = IRLED_PORT = hilo;
 			Delay10TCYx(17);
@@ -613,6 +610,40 @@ int WaitToReadySerial(void)
 		CDCTxService();
 	}
 	return 0;
+}
+
+WORD ReadWORDBuffer(WORD i)
+{
+	WORD *p;
+	if (i<BUFF_U1_WSIZE) {
+		p = buff_user1.wBuff;
+	} else if (i<(BUFF_U1_WSIZE+BUFF_U2_WSIZE)) {
+		p = buff_user2.wBuff;
+		i -= BUFF_U1_WSIZE;
+//	} else if (i<(BUFF_U1_WSIZE+BUFF_U2_WSIZE+BUFF_U3_WSIZE)) {
+//		p = buff_user3.wBuff;
+//		i -= BUFF_U1_WSIZE+BUFF_U2_WSIZE;
+	} else {
+		return 0xffff;
+	}
+	return p[i];
+}
+
+void WriteWORDBuffer(WORD i, WORD v)
+{
+	WORD *p;
+	if (i<BUFF_U1_WSIZE) {
+		p = buff_user1.wBuff;
+	} else if (i<BUFF_U1_WSIZE+BUFF_U2_WSIZE) {
+		p = buff_user2.wBuff;
+		i -= BUFF_U1_WSIZE;
+//	} else if (i<(BUFF_U1_WSIZE+BUFF_U2_WSIZE+BUFF_U3_WSIZE)) {
+//		p = buff_user3.wBuff;
+//		i -= BUFF_U1_WSIZE+BUFF_U2_WSIZE;
+	} else {
+		return;
+	}
+	p[i] = v;
 }
 
 // ******************************************************************************************************
