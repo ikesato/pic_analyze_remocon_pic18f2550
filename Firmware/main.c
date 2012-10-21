@@ -109,6 +109,7 @@
 #include "usb_config.h"
 #include "USB/usb_device.h"
 #include "USB/usb.h"
+#include "buffer.h"
 
 #include "HardwareProfile.h"
 
@@ -126,24 +127,33 @@
 // 順番重要:先にアドレス順で後の udata から定義するとバンク内にきちんと収まる
 //          これを udata の後に書くと収まらなくなる
 // http://tylercsf.blog123.fc2.com/blog-entry-189.html
+
 #pragma udata USER_RAM6=0x600
-#define BUFF_U1_WSIZE 0x100
-#define BUFF_U1_CSIZE 0x200
-union {
-	WORD wBuff[BUFF_U1_WSIZE];
-	char cBuff[BUFF_U1_CSIZE];
-} buff_user1;
+BYTE buff_user1[0x200];
 
 #pragma udata USER_RAM2=0x200
-#define BUFF_U2_WSIZE 0x80
-#define BUFF_U2_CSIZE 0x100
-union {
-	WORD wBuff[BUFF_U2_WSIZE];
-	char cBuff[BUFF_U2_CSIZE];
-} buff_user2;
+BYTE buff_user2[0x100];
 
-#define BUFF_WSIZE (BUFF_U1_WSIZE+BUFF_U2_WSIZE)
-#define BUFF_CSIZE (BUFF_U1_CSIZE+BUFF_U2_CSIZE)
+//	#pragma udata USER_RAM6=0x600
+//	#define BUFF_U1_WSIZE 0x100
+//	#define BUFF_U1_BSIZE 0x200
+//	union {
+//		WORD wBuff[BUFF_U1_WSIZE];
+//		BYTE bBuff[BUFF_U1_BSIZE];
+//	} buff_user1;
+//	
+//	#pragma udata USER_RAM2=0x200
+//	//#define BUFF_U2_WSIZE 0x80
+//	//#define BUFF_U2_BSIZE 0x100
+//	#define BUFF_U2_WSIZE 0x78
+//	#define BUFF_U2_BSIZE 0xF0
+//	union {
+//		WORD wBuff[BUFF_U2_WSIZE];
+//		BYTE bBuff[BUFF_U2_BSIZE];
+//	} buff_user2;
+//	
+//	#define BUFF_WSIZE (BUFF_U1_WSIZE+BUFF_U2_WSIZE)
+//	#define BUFF_BSIZE (BUFF_U1_BSIZE+BUFF_U2_BSIZE)
 
 #if defined(__18CXX)
     #pragma udata
@@ -155,7 +165,6 @@ char USB_Out_Buffer[64];
 BOOL stringPrinted;
 volatile BOOL buttonPressed;
 volatile BYTE buttonCount;
-WORD bufferLen;
 
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
@@ -170,8 +179,8 @@ void UserInit(void);
 void ReadIR(void);
 void SendIR(void);
 int WaitToReadySerial(void);
-WORD ReadWORDBuffer(WORD i);
-void WriteWORDBuffer(WORD i, WORD v);
+
+BYTE ReadBYTEBuffer(WORD pos); // for debug
 
 /** VECTOR REMAPPING ***********************************************/
 #if defined(__18CXX)
@@ -354,11 +363,14 @@ static void InitializeSystem(void)
  *****************************************************************************/
 void UserInit(void)
 {
+    InitBuffer();
+    AddBuffer(buff_user1, sizeof(buff_user1));
+    AddBuffer(buff_user2, sizeof(buff_user2));
+
     //Initialize all of the debouncing variables
     buttonCount = 0;
     buttonPressed = 0;
     stringPrinted = TRUE;
-	bufferLen = 0;
 
 	// initialize
 	LED_TRIS  = 0; // LED output
@@ -495,81 +507,82 @@ void ReadIR(void)
 {
 	WORD t;
 	BYTE hilo;
-	WORD i;
 	BYTE exit;
+	WORD byteOrWord; // 0:未設定
+	WORD pos;
 
 	if (IR_PORT == 1)
 		return;
 
-	//TMR0H=0; TMR0L=0; // 順番重要
-	WriteTimer0(0);
-	INTCONbits.TMR0IF = 0;
-	//hilo = IR_PORT;
-	hilo = 0;
-
 	// なにか信号があった
 
+	WriteTimer0(0);
+	INTCONbits.TMR0IF = 0;
+	hilo = 0;
+
+	pos = 0;
+	byteOrWord = 0;
 	exit = 0;
-	for (i=0; i<BUFF_WSIZE && exit==0; i++)
-	{
+	while (exit==0) {
 		LED_PORT = !hilo;
-		while (IR_PORT == hilo) {
+		do {
 			t = ReadTimer0();
-			//if (hilo == 1 && t > 60000)
-			//if (t > 32760)
 			if (INTCONbits.TMR0IF || (t > 60000)) {
-			//if (INTCONbits.TMR0IF) {
+				t = 60000;
 				INTCONbits.TMR0IF = 0;
 				exit=1;
 				break;
 			}
-		}
-		t = ReadTimer0();
+		} while (IR_PORT == hilo);
 		WriteTimer0(0);
-		WriteWORDBuffer(i,t);
+		exit += WriteBuffer(t,&pos,&byteOrWord);
 		hilo = !hilo;
 	}
 	LED_PORT = 0;
+    WriteEOF(pos);
 
-	bufferLen = i;
-	if (bufferLen==0)
-		return;
-	if (bufferLen==BUFF_WSIZE)
-		bufferLen--;
 	if (!WaitToReadySerial())
 		return;
-	for (i=0;i<bufferLen;i++) {
+	hilo = 1;
+	pos = 0;
+	byteOrWord = 0;
+	while (1) {
 		if (!WaitToReadySerial()) return;
+		t = ReadBuffer(&pos,&byteOrWord);
+		if (t==BUFF_EOF)
+			break;
 		sprintf(USB_In_Buffer, (far rom char*)"|%c%u",
-				(i&0x1) == 0 ? 'H' : 'L',
-				ReadWORDBuffer(i));
+				hilo == 0 ? 'H' : 'L',
+				t);
 		putsUSBUSART(USB_In_Buffer);
+		hilo=!hilo;
 	}
 	if (!WaitToReadySerial()) return;
 	sprintf(USB_In_Buffer, (far rom char*)"|\r\n");
 	putsUSBUSART(USB_In_Buffer);
 	if (!WaitToReadySerial()) return;
-
-//	{
-//		LED_PORT = !IR_PORT;
-//	}
 }
 
 void SendIR(void)
 {
 	WORD t,wait;
 	BYTE hilo;
-	WORD i;
+	WORD pos;
+	WORD byteOrWord; // 0:未設定
 
 	if (buttonPressed == 0)
 		return;
 
 	WriteTimer0(0);
 	INTCONbits.TMR0IF = 0;
-	//LED_PORT = IRLED_PORT = 1;
-	for (i=0;i<bufferLen;i++) {
-		hilo = !(i&1);
-		wait = ReadWORDBuffer(i);
+
+	hilo = 1;
+	pos = 0;
+	byteOrWord = 0;
+	while (1) {
+		wait = ReadBuffer(&pos,&byteOrWord);
+		if (wait==BUFF_EOF)
+            break;
 		do {
 			LED_PORT = IRLED_PORT = hilo;
 			Delay10TCYx(17);
@@ -582,7 +595,8 @@ void SendIR(void)
 		} while(t < wait);
 
 		WriteTimer0(0);
-		LED_PORT = IRLED_PORT = (i&1);
+		hilo = !hilo;
+		LED_PORT = IRLED_PORT = hilo;
 	}
 	LED_PORT = IRLED_PORT = 0;
 
@@ -610,40 +624,6 @@ int WaitToReadySerial(void)
 		CDCTxService();
 	}
 	return 0;
-}
-
-WORD ReadWORDBuffer(WORD i)
-{
-	WORD *p;
-	if (i<BUFF_U1_WSIZE) {
-		p = buff_user1.wBuff;
-	} else if (i<(BUFF_U1_WSIZE+BUFF_U2_WSIZE)) {
-		p = buff_user2.wBuff;
-		i -= BUFF_U1_WSIZE;
-//	} else if (i<(BUFF_U1_WSIZE+BUFF_U2_WSIZE+BUFF_U3_WSIZE)) {
-//		p = buff_user3.wBuff;
-//		i -= BUFF_U1_WSIZE+BUFF_U2_WSIZE;
-	} else {
-		return 0xffff;
-	}
-	return p[i];
-}
-
-void WriteWORDBuffer(WORD i, WORD v)
-{
-	WORD *p;
-	if (i<BUFF_U1_WSIZE) {
-		p = buff_user1.wBuff;
-	} else if (i<BUFF_U1_WSIZE+BUFF_U2_WSIZE) {
-		p = buff_user2.wBuff;
-		i -= BUFF_U1_WSIZE;
-//	} else if (i<(BUFF_U1_WSIZE+BUFF_U2_WSIZE+BUFF_U3_WSIZE)) {
-//		p = buff_user3.wBuff;
-//		i -= BUFF_U1_WSIZE+BUFF_U2_WSIZE;
-	} else {
-		return;
-	}
-	p[i] = v;
 }
 
 // ******************************************************************************************************
