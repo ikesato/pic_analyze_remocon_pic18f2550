@@ -622,12 +622,13 @@ void SendIR(void)
             break;
 		do {
 			LED_PORT = IRLED_PORT = hilo;
-			Delay10TCYx(17);
+			//_delay(158);
+			Delay10TCYx(16);
 			t = ReadTimer0();
 			if (t >= wait)
 				break;
 			LED_PORT = IRLED_PORT = 0;
-			Delay10TCYx(17);
+			Delay10TCYx(15);
 			t = ReadTimer0();
 		} while(t < wait);
 
@@ -642,8 +643,8 @@ void SendIR(void)
 	putsUSBUSART(USB_In_Buffer);
 	if (!WaitToReadySerial()) return;
 
-	// wait 10msec (250msec == 240count)
-    Delay10KTCYx(10);
+	// wait 10msec [1cycle==0.083333333us]
+    Delay10KTCYx(120);
 }
 
 /**
