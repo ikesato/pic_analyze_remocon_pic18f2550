@@ -113,14 +113,17 @@
 
 #include "HardwareProfile.h"
 
-#define LED_TRIS    TRISAbits.TRISA0
+#define LED1_TRIS   TRISAbits.TRISA4
+#define LED2_TRIS   TRISAbits.TRISA5
 #define IR_TRIS     TRISBbits.TRISB3
 #define SW_TRIS     TRISBbits.TRISB4
-#define IRLED_TRIS  TRISCbits.TRISC2
-#define LED_PORT    PORTAbits.RA0
+#define IRLED_TRIS  TRISAbits.TRISA0
+
+#define LED1_PORT   PORTAbits.RA4
+#define LED2_PORT   PORTAbits.RA5
 #define IR_PORT     PORTBbits.RB3
 #define SW_PORT     PORTBbits.RB4
-#define IRLED_PORT  PORTCbits.RC2
+#define IRLED_PORT  PORTAbits.RA0
 
 
 /** V A R I A B L E S ********************************************************/
@@ -412,11 +415,13 @@ void UserInit(void)
     stringPrinted = TRUE;
 
 	// initialize
-	LED_TRIS  = 0; // LED output
+	LED1_TRIS = 0; // LED1 output
+	LED2_TRIS = 0; // LED2 output
 	IR_TRIS   = 1; // IR input
 	SW_TRIS   = 1; // SW input
 	IRLED_TRIS= 0; // IRLED input
-	LED_PORT  = 0;
+	LED1_PORT = 0;
+	LED2_PORT = 0;
 	IRLED_PORT= 0;
 
 //	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  2 =>  0.16666us -> *65536 = 10.923ms
@@ -483,13 +488,13 @@ void ProcessIO(void)
 
 //	while(1){
 //	    // ポートA,B,Cをオンにする
-//		LED_PORT = 1;
+//		LED1_PORT = 1;
 //	    // 1秒待つ
 //	    Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240);
 //	
 //	
 //	    // ポートA,B,Cをオフにする
-//		LED_PORT = 0;
+//		LED1_PORT = 0;
 //	    // 1秒待つ
 //	    Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240);
 //	}
@@ -563,7 +568,7 @@ void ReadIR(void)
 	byteOrWord = 0;
 	exit = 0;
 	while (exit==0) {
-		LED_PORT = !hilo;
+		LED1_PORT = !hilo;
 		do {
 			t = ReadTimer0();
 			if (INTCONbits.TMR0IF || (t > 60000)) {
@@ -577,7 +582,7 @@ void ReadIR(void)
 		exit += WriteBuffer(t,&pos,&byteOrWord);
 		hilo = !hilo;
 	}
-	LED_PORT = 0;
+	LED1_PORT = 0;
     WriteEOF(pos);
 
 	if (!WaitToReadySerial())
@@ -623,21 +628,21 @@ void SendIR(void)
 		if (wait==BUFF_EOF)
             break;
 		do {
-			LED_PORT = IRLED_PORT = hilo;
+			LED1_PORT = IRLED_PORT = hilo;
 			DelayIRFreqHi();
 			t = ReadTimer0();
 			if (t >= wait)
 				break;
-			LED_PORT = IRLED_PORT = 0;
+			LED1_PORT = IRLED_PORT = 0;
 			DelayIRFreqLo();
 			t = ReadTimer0();
 		} while(t < wait);
 
 		WriteTimer0(0);
 		hilo = !hilo;
-		LED_PORT = IRLED_PORT = hilo;
+		LED1_PORT = IRLED_PORT = hilo;
 	}
-	LED_PORT = IRLED_PORT = 0;
+	LED1_PORT = IRLED_PORT = 0;
 
 	if (!WaitToReadySerial()) return;
 	sprintf(USB_In_Buffer, (far rom char*)"sended ir\r\n");
