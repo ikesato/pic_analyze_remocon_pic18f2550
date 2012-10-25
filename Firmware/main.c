@@ -178,6 +178,8 @@ void BlinkUSBStatus(void);
 void UserInit(void);
 void ReadIR(void);
 void SendIR(void);
+void DelayIRFreqHi(void);
+void DelayIRFreqLo(void);
 int WaitToReadySerial(void);
 
 BYTE ReadBYTEBuffer(WORD pos); // for debug
@@ -622,13 +624,12 @@ void SendIR(void)
             break;
 		do {
 			LED_PORT = IRLED_PORT = hilo;
-			//_delay(158);
-			Delay10TCYx(16);
+			DelayIRFreqHi();
 			t = ReadTimer0();
 			if (t >= wait)
 				break;
 			LED_PORT = IRLED_PORT = 0;
-			Delay10TCYx(15);
+			DelayIRFreqLo();
 			t = ReadTimer0();
 		} while(t < wait);
 
@@ -645,6 +646,26 @@ void SendIR(void)
 
 	// wait 10msec [1cycle==0.083333333us]
     Delay10KTCYx(120);
+}
+
+// 38KHz のデューティー比 33% の HI で待つ
+// HI:105.263157894737[cycle] == 8.77192982456142[us]
+void DelayIRFreqHi(void)
+{
+	Delay10TCYx(10);
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+}
+
+// 38KHz のデューティー比 33% の LO で待つ
+// LO:210.526315789474[cycle] == 17.5438596491228[us]
+void DelayIRFreqLo(void)
+{
+	Delay10TCYx(21);
+	Delay1TCY();
 }
 
 /**
