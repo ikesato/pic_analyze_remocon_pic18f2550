@@ -110,6 +110,7 @@
 #include "USB/usb_device.h"
 #include "USB/usb.h"
 #include "buffer.h"
+#include "button.h"
 
 #include "HardwareProfile.h"
 
@@ -124,6 +125,8 @@
 #define IR_PORT     PORTBbits.RB3
 #define SW_PORT     PORTBbits.RB4
 #define IRLED_PORT  PORTAbits.RA0
+
+#define SW_BIT		(1<<4)
 
 
 /** V A R I A B L E S ********************************************************/
@@ -164,10 +167,6 @@ BYTE buff_user2[0x100];
 
 char USB_In_Buffer[64];
 char USB_Out_Buffer[64];
-
-BOOL stringPrinted;
-volatile BOOL buttonPressed;
-volatile BYTE buttonCount;
 
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
@@ -408,11 +407,7 @@ void UserInit(void)
     InitBuffer();
     AddBuffer(buff_user1, sizeof(buff_user1));
     AddBuffer(buff_user2, sizeof(buff_user2));
-
-    //Initialize all of the debouncing variables
-    buttonCount = 0;
-    buttonPressed = 0;
-    stringPrinted = TRUE;
+	ButtonInit(SW_BIT);
 
 	// initialize
 	LED1_TRIS = 0; // LED1 output
@@ -424,35 +419,26 @@ void UserInit(void)
 	LED2_PORT = 0;
 	IRLED_PORT= 0;
 
-//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  2 =>  0.16666us -> *65536 = 10.923ms
-//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  4 =>  0.33333us -> *65536 = 21.845ms
-//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  8 =>  0.66666us -> *65536 = 43.69ms
-//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 16 =>  1.33333us -> *65536 = 87.381ms
-//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 32 =>  2.66666us -> *65536 = 174.76ms
-//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 64 =>  5.33333us -> *65536 = 349.5ms
-//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *128 => 10.66666us -> *65536 = 699ms
-//	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *256 => 21.33333us -> *65536 = 1398ms
-
-//	T0CONbits.T0PS = 0x7; // prescaler 111=1:256 110=1:128 ... 001=1:4 000=1:2
-//	T0CONbits.PSA = 0;
-//	T0CONbits.T0SE = 0; // なんでもいい
-//	T0CONbits.T0CS = 0;
-//	T0CONbits.T08BIT = 0;
-//	T0CONbits.TMR0ON = 1;
-	//T0CON = 0b10000111;
-	//T0CON = 0b10000000;
+	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  2 =>  0.16666us -> *65536 = 10.923ms
+	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  4 =>  0.33333us -> *65536 = 21.845ms
+	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  8 =>  0.66666us -> *65536 = 43.69ms
+	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 16 =>  1.33333us -> *65536 = 87.381ms
+	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 32 =>  2.66666us -> *65536 = 174.76ms
+	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => * 64 =>  5.33333us -> *65536 = 349.5ms
+	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *128 => 10.66666us -> *65536 = 699ms
+	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *256 => 21.33333us -> *65536 = 1398ms
 	T0CON = TIMER_INT_ON &
-		  //TIMER_INT_OFF &
 		    T0_16BIT &
 		    T0_SOURCE_INT &
 		    T0_EDGE_RISE & // なんでもいい
 		    T0_PS_1_64;
 
-	// max 43.69
+	// max 43.69[ms]
 	T1CON = TIMER_INT_ON &
 		    T1_16BIT_RW &
 		    T1_SOURCE_INT &
 		    T1_PS_1_8;
+
 }//end UserInit
 
 /********************************************************************
@@ -483,6 +469,8 @@ void ProcessIO(void)
 //		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
 //	}
 
+	ButtonProcEveryMainLoop(PORTB);
+
 	ReadIR();
 	SendIR();
 
@@ -501,22 +489,6 @@ void ProcessIO(void)
 
     // User Application USB tasks
     if((USBDeviceState < CONFIGURED_STATE)||(USBSuspendControl==1)) return;
-
-//	if(buttonPressed)
-//	{
-//	    if(stringPrinted == FALSE)
-//	    {
-//	        if(mUSBUSARTIsTxTrfReady())
-//	        {
-//	            putrsUSBUSART("Button Pressed -- \r\n");
-//	            stringPrinted = TRUE;
-//	        }
-//	    }
-//	}
-//	else
-//	{
-//	    stringPrinted = FALSE;
-//	}
 
 //	if(USBUSARTIsTxTrfReady())
 //	{
@@ -545,7 +517,7 @@ void ProcessIO(void)
 //	}
 
     CDCTxService();
-}		//end ProcessIO
+}//end ProcessIO
 
 void ReadIR(void)
 {
@@ -614,7 +586,10 @@ void SendIR(void)
 	WORD pos;
 	WORD byteOrWord; // 0:未設定
 
-	if (buttonPressed == 0)
+	if (ButtonLongDownState() & SW_BIT)
+		LED2_PORT = !LED2_PORT;
+
+	if ((ButtonUpState() & SW_BIT)==0)
 		return;
 
 	WriteTimer0(0);
@@ -808,30 +783,7 @@ void USBCB_SOF_Handler(void)
 {
     // No need to clear UIRbits.SOFIF to 0 here.
     // Callback caller is already doing that.
-
-    //This is reverse logic since the pushbutton is active low
-    if(buttonPressed == SW_PORT)
-    {
-        if(buttonCount != 0)
-        {
-            buttonCount--;
-        }
-        else
-        {
-            //This is reverse logic since the pushbutton is active low
-            buttonPressed = !SW_PORT;
-
-            //Wait 100ms before the next press can be generated
-            buttonCount = 100;
-        }
-    }
-    else
-    {
-        if(buttonCount != 0)
-        {
-            buttonCount--;
-        }
-    }
+	ButtonProcEvery1ms();
 }
 
 /*******************************************************************
