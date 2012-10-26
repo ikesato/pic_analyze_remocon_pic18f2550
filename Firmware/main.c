@@ -140,27 +140,6 @@ BYTE buff_user1[0x200];
 #pragma udata USER_RAM2=0x200
 BYTE buff_user2[0x100];
 
-//	#pragma udata USER_RAM6=0x600
-//	#define BUFF_U1_WSIZE 0x100
-//	#define BUFF_U1_BSIZE 0x200
-//	union {
-//		WORD wBuff[BUFF_U1_WSIZE];
-//		BYTE bBuff[BUFF_U1_BSIZE];
-//	} buff_user1;
-//	
-//	#pragma udata USER_RAM2=0x200
-//	//#define BUFF_U2_WSIZE 0x80
-//	//#define BUFF_U2_BSIZE 0x100
-//	#define BUFF_U2_WSIZE 0x78
-//	#define BUFF_U2_BSIZE 0xF0
-//	union {
-//		WORD wBuff[BUFF_U2_WSIZE];
-//		BYTE bBuff[BUFF_U2_BSIZE];
-//	} buff_user2;
-//	
-//	#define BUFF_WSIZE (BUFF_U1_WSIZE+BUFF_U2_WSIZE)
-//	#define BUFF_BSIZE (BUFF_U1_BSIZE+BUFF_U2_BSIZE)
-
 #if defined(__18CXX)
     #pragma udata
 #endif
@@ -466,28 +445,9 @@ void ProcessIO(void)
 {   
     BYTE numBytesRead;
 
-//	{
-//		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
-//		sprintf(USB_In_Buffer, (far rom char*)"P0 INTCON=%02x TMR0=%u\r\n", INTCON, ReadTimer0());
-//		putsUSBUSART(USB_In_Buffer);
-//		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
-//	}
 	ButtonProc();
 	ReadIR();
 	SendIR();
-
-//	while(1){
-//	    // ポートA,B,Cをオンにする
-//		LED1_PORT = 1;
-//	    // 1秒待つ
-//	    Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240);
-//	
-//	
-//	    // ポートA,B,Cをオフにする
-//		LED1_PORT = 0;
-//	    // 1秒待つ
-//	    Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240); Delay10KTCYx(240);
-//	}
 
     // User Application USB tasks
     if((USBDeviceState < CONFIGURED_STATE)||(USBSuspendControl==1)) return;
