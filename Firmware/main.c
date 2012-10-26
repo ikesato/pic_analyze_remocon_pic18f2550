@@ -167,6 +167,7 @@ BYTE buff_user2[0x100];
 
 char USB_In_Buffer[64];
 char USB_Out_Buffer[64];
+BYTE enableReadIR;
 
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
@@ -178,6 +179,7 @@ void YourLowPriorityISRCode();
 void USBCBSendResume(void);
 void BlinkUSBStatus(void);
 void UserInit(void);
+void ButtonProc(void);
 void ReadIR(void);
 void SendIR(void);
 void DelayIRFreqHi(void);
@@ -404,11 +406,6 @@ static void InitializeSystem(void)
  *****************************************************************************/
 void UserInit(void)
 {
-    InitBuffer();
-    AddBuffer(buff_user1, sizeof(buff_user1));
-    AddBuffer(buff_user2, sizeof(buff_user2));
-	ButtonInit(SW_BIT);
-
 	// initialize
 	LED1_TRIS = 0; // LED1 output
 	LED2_TRIS = 0; // LED2 output
@@ -439,6 +436,13 @@ void UserInit(void)
 		    T1_SOURCE_INT &
 		    T1_PS_1_8;
 
+
+	// initilize other variables
+    InitBuffer();
+    AddBuffer(buff_user1, sizeof(buff_user1));
+    AddBuffer(buff_user2, sizeof(buff_user2));
+	ButtonInit(SW_BIT);
+	enableReadIR = 1;
 }//end UserInit
 
 /********************************************************************
@@ -468,9 +472,7 @@ void ProcessIO(void)
 //		putsUSBUSART(USB_In_Buffer);
 //		while(!mUSBUSARTIsTxTrfReady()) CDCTxService();
 //	}
-
-	ButtonProcEveryMainLoop(PORTB);
-
+	ButtonProc();
 	ReadIR();
 	SendIR();
 
@@ -519,6 +521,16 @@ void ProcessIO(void)
     CDCTxService();
 }//end ProcessIO
 
+
+void ButtonProc(void)
+{
+	ButtonProcEveryMainLoop(PORTB);
+	if (ButtonLongDownState() & SW_BIT)
+		enableReadIR = !enableReadIR ;
+
+	LED2_PORT = enableReadIR;
+}
+
 void ReadIR(void)
 {
 	WORD t;
@@ -526,6 +538,9 @@ void ReadIR(void)
 	BYTE exit;
 	WORD byteOrWord; // 0:未設定
 	WORD pos;
+
+	if (enableReadIR==0)
+		return;
 
 	if (IR_PORT == 1)
 		return;
@@ -585,9 +600,6 @@ void SendIR(void)
 	BYTE hilo;
 	WORD pos;
 	WORD byteOrWord; // 0:未設定
-
-	if (ButtonLongDownState() & SW_BIT)
-		LED2_PORT = !LED2_PORT;
 
 	if ((ButtonUpState() & SW_BIT)==0)
 		return;
