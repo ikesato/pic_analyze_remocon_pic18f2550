@@ -394,6 +394,7 @@ void UserInit(void)
 	LED1_PORT = 0;
 	LED2_PORT = 0;
 	IRLED_PORT= 0;
+	//IRLED_PORT= 1;
 
 	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  2 =>  0.16666us -> *65536 = 10.923ms
 	// timer0 48MHz/4=12MHz => 0.08333[us/cycle] => *  4 =>  0.33333us -> *65536 = 21.845ms
@@ -445,6 +446,9 @@ void ProcessIO(void)
 {   
     BYTE numBytesRead;
 
+	LED1_PORT = 0;
+	IRLED_PORT = 0;
+	//IRLED_PORT = 1;
 	ButtonProc();
 	ReadIR();
 	SendIR();
@@ -575,36 +579,58 @@ void SendIR(void)
 		if (wait==BUFF_EOF)
             break;
 		do {
-			LED1_PORT = IRLED_PORT = hilo;
+			LED1_PORT = hilo;
+			//IRLED_PORT = !hilo;
+			IRLED_PORT = hilo;
 			DelayIRFreqHi();
 			t = ReadTimer0();
 			if (t >= wait)
 				break;
-			LED1_PORT = IRLED_PORT = 0;
+			LED1_PORT = 0;
+			//IRLED_PORT = 1;
+			IRLED_PORT = 0;
 			DelayIRFreqLo();
 			t = ReadTimer0();
 		} while(t < wait);
 
 		WriteTimer0(0);
 		hilo = !hilo;
-		LED1_PORT = IRLED_PORT = hilo;
+		LED1_PORT = hilo;
+		//IRLED_PORT = !hilo;
+		IRLED_PORT = hilo;
 	}
-	LED1_PORT = IRLED_PORT = 0;
+
+	// wait 10msec [1cycle==0.083333333us]
+    Delay10KTCYx(120);
+	LED1_PORT = 0;
+	//IRLED_PORT = 1;
+	IRLED_PORT = 0;
 
 	if (!WaitToReadySerial()) return;
 	sprintf(USB_In_Buffer, (far rom char*)"sended ir\r\n");
 	putsUSBUSART(USB_In_Buffer);
 	if (!WaitToReadySerial()) return;
 
-	// wait 10msec [1cycle==0.083333333us]
-    Delay10KTCYx(120);
+	LED1_PORT = 0;
+	//IRLED_PORT = 1;
+	IRLED_PORT = 0;
 }
 
 // 38KHz のデューティー比 33% の HI で待つ
 // HI:105.263157894737[cycle] == 8.77192982456142[us]
+// 38KHz のデューティー比 50% の 場合
+// HI:157.894736842105[cycle] == 13.1578947368421[us]
 void DelayIRFreqHi(void)
 {
-	Delay10TCYx(10);
+	//Delay10TCYx(10);
+	//Delay1TCY();
+	//Delay1TCY();
+	//Delay1TCY();
+	//Delay1TCY();
+	//Delay1TCY();
+	Delay10TCYx(15);
+	Delay1TCY();
+	Delay1TCY();
 	Delay1TCY();
 	Delay1TCY();
 	Delay1TCY();
@@ -614,9 +640,19 @@ void DelayIRFreqHi(void)
 
 // 38KHz のデューティー比 33% の LO で待つ
 // LO:210.526315789474[cycle] == 17.5438596491228[us]
+// 38KHz のデューティー比 50% の 場合
+// LO:157.894736842105[cycle] == 13.1578947368421[us]
 void DelayIRFreqLo(void)
 {
-	Delay10TCYx(21);
+	//Delay10TCYx(21);
+	//Delay1TCY();
+	Delay10TCYx(15);
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
 	Delay1TCY();
 }
 
