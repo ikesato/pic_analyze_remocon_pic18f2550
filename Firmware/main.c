@@ -128,6 +128,7 @@
 
 #define SW_BIT		(1<<4)
 
+#define MAX_WAIT_CYCLE 60000
 
 /** V A R I A B L E S ********************************************************/
 // 順番重要:先にアドレス順で後の udata から定義するとバンク内にきちんと収まる
@@ -522,8 +523,8 @@ void ReadIR(void)
 		LED1_PORT = !hilo;
 		do {
 			t = ReadTimer0();
-			if (INTCONbits.TMR0IF || (t > 60000)) {
-				t = 60000;
+			if (INTCONbits.TMR0IF || (t > MAX_WAIT_CYCLE)) {
+				t = MAX_WAIT_CYCLE;
 				INTCONbits.TMR0IF = 0;
 				exit=1;
 				break;
@@ -578,6 +579,8 @@ void SendIR(void)
 		wait = ReadBuffer(&pos,&byteOrWord);
 		if (wait==BUFF_EOF)
             break;
+		if (wait==MAX_WAIT_CYCLE)
+			break;
 		do {
 			LED1_PORT = hilo;
 			//IRLED_PORT = !hilo;
@@ -622,20 +625,23 @@ void SendIR(void)
 // HI:157.894736842105[cycle] == 13.1578947368421[us]
 void DelayIRFreqHi(void)
 {
-	//Delay10TCYx(10);
+	// duty 1/3
+	Delay10TCYx(10);
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+
+	// duty 1/2
+	//Delay10TCYx(15);
 	//Delay1TCY();
 	//Delay1TCY();
 	//Delay1TCY();
 	//Delay1TCY();
 	//Delay1TCY();
-	Delay10TCYx(15);
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
+	//Delay1TCY();
+	//Delay1TCY();
 }
 
 // 38KHz のデューティー比 33% の LO で待つ
@@ -644,16 +650,19 @@ void DelayIRFreqHi(void)
 // LO:157.894736842105[cycle] == 13.1578947368421[us]
 void DelayIRFreqLo(void)
 {
-	//Delay10TCYx(21);
+	// duty 1/3
+	Delay10TCYx(21);
+	Delay1TCY();
+
+	// duty 1/2
+	//Delay10TCYx(15);
 	//Delay1TCY();
-	Delay10TCYx(15);
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
+	//Delay1TCY();
+	//Delay1TCY();
+	//Delay1TCY();
+	//Delay1TCY();
+	//Delay1TCY();
+	//Delay1TCY();
 }
 
 /**
