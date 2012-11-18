@@ -8412,7 +8412,7 @@ grid 2.54 mm</description>
 <parts>
 <part name="IC3" library="microchip" deviceset="PIC18F2*_28" device="DIP" technology="550"/>
 <part name="X1" library="con-hirose" deviceset="MINI-USB-" device="UX60-MB-5S8"/>
-<part name="U$1" library="IRM2161" deviceset="IRM2161" device=""/>
+<part name="PL-IRM2161-C438" library="IRM2161" deviceset="IRM2161" device=""/>
 <part name="SUPPLY1" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY2" library="supply2" deviceset="+5V" device=""/>
 <part name="SUPPLY3" library="supply2" deviceset="+5V" device=""/>
@@ -8433,20 +8433,20 @@ grid 2.54 mm</description>
 <part name="SUPPLY16" library="supply2" deviceset="GND" device=""/>
 <part name="LED1" library="led" deviceset="LED" device="3MM"/>
 <part name="LED2" library="led" deviceset="LED" device="3MM"/>
-<part name="Y1" library="xtal" deviceset="CRES-H" device="A"/>
-<part name="C2" library="rcl" deviceset="C-EU" device="C0603K"/>
-<part name="R1" library="rcl" deviceset="R-US_" device="MELF0102R"/>
-<part name="R2" library="rcl" deviceset="R-US_" device="MELF0102R"/>
-<part name="R6" library="rcl" deviceset="R-US_" device="MELF0102R"/>
-<part name="R7" library="rcl" deviceset="R-US_" device="MELF0102R"/>
-<part name="IRLED" library="led" deviceset="LED" device="3MM"/>
-<part name="IRLED1" library="led" deviceset="LED" device="3MM"/>
-<part name="R8" library="rcl" deviceset="R-US_" device="0207/7"/>
-<part name="R9" library="rcl" deviceset="R-US_" device="0207/7"/>
-<part name="R10" library="rcl" deviceset="R-US_" device="0207/7"/>
-<part name="Q2" library="transistor-power" deviceset="BUZ11" device="BV"/>
-<part name="C3" library="rcl" deviceset="C-EU" device="025-025X050"/>
+<part name="RESONATOR" library="xtal" deviceset="CRES-H" device="A" value="20MHz"/>
+<part name="R1" library="rcl" deviceset="R-US_" device="MELF0102R" value="10KΩ"/>
+<part name="R2" library="rcl" deviceset="R-US_" device="MELF0102R" value="10KΩ"/>
+<part name="R3" library="rcl" deviceset="R-US_" device="MELF0102R" value="1KΩ"/>
+<part name="R4" library="rcl" deviceset="R-US_" device="MELF0102R" value="1KΩ"/>
+<part name="IRLED2" library="led" deviceset="LED" device="3MM" value="TLN105B"/>
+<part name="IRLED1" library="led" deviceset="LED" device="3MM" value="TLN105B"/>
+<part name="R6" library="rcl" deviceset="R-US_" device="0207/7" value="10KΩ"/>
+<part name="R7" library="rcl" deviceset="R-US_" device="0207/7" value="10KΩ"/>
+<part name="R5" library="rcl" deviceset="R-US_" device="0207/7" value="1Ω"/>
+<part name="2SK2201" library="transistor-power" deviceset="BUZ11" device="BV" value=""/>
 <part name="SUPPLY17" library="supply2" deviceset="GND" device=""/>
+<part name="C1" library="rcl" deviceset="C-EU" device="025-024X044" value="0.1uF"/>
+<part name="C2" library="rcl" deviceset="C-EU" device="025-024X044" value="0.1uF"/>
 </parts>
 <sheets>
 <sheet>
@@ -8455,7 +8455,7 @@ grid 2.54 mm</description>
 <instances>
 <instance part="IC3" gate="G$1" x="35.56" y="20.32"/>
 <instance part="X1" gate="G$1" x="78.74" y="-12.7" rot="R270"/>
-<instance part="U$1" gate="G$1" x="104.14" y="48.26"/>
+<instance part="PL-IRM2161-C438" gate="G$1" x="104.14" y="48.26"/>
 <instance part="SUPPLY1" gate="GND" x="63.5" y="-12.7"/>
 <instance part="SUPPLY2" gate="+5V" x="83.82" y="-2.54"/>
 <instance part="SUPPLY3" gate="+5V" x="96.52" y="17.78"/>
@@ -8476,20 +8476,20 @@ grid 2.54 mm</description>
 <instance part="SUPPLY16" gate="GND" x="-30.48" y="30.48"/>
 <instance part="LED1" gate="G$1" x="-45.72" y="22.86" rot="R270"/>
 <instance part="LED2" gate="G$1" x="-45.72" y="12.7" rot="R270"/>
-<instance part="Y1" gate="G$1" x="-30.48" y="-2.54"/>
-<instance part="C2" gate="G$1" x="-5.08" y="2.54" rot="R270"/>
+<instance part="RESONATOR" gate="G$1" x="-30.48" y="-2.54"/>
 <instance part="R1" gate="G$1" x="0" y="58.42" rot="R90"/>
 <instance part="R2" gate="G$1" x="71.12" y="48.26" rot="R90"/>
-<instance part="R6" gate="G$1" x="-38.1" y="22.86"/>
-<instance part="R7" gate="G$1" x="-38.1" y="12.7"/>
-<instance part="IRLED" gate="G$1" x="-15.24" y="63.5"/>
+<instance part="R3" gate="G$1" x="-38.1" y="22.86"/>
+<instance part="R4" gate="G$1" x="-38.1" y="12.7"/>
+<instance part="IRLED2" gate="G$1" x="-15.24" y="63.5"/>
 <instance part="IRLED1" gate="G$1" x="-15.24" y="55.88"/>
-<instance part="R8" gate="G$1" x="-30.48" y="38.1" rot="R90"/>
-<instance part="R9" gate="G$1" x="-25.4" y="43.18"/>
-<instance part="R10" gate="G$1" x="-15.24" y="71.12" rot="R90"/>
-<instance part="Q2" gate="1" x="-17.78" y="45.72"/>
-<instance part="C3" gate="G$1" x="96.52" y="12.7"/>
+<instance part="R6" gate="G$1" x="-30.48" y="38.1" rot="R90"/>
+<instance part="R7" gate="G$1" x="-25.4" y="43.18"/>
+<instance part="R5" gate="G$1" x="-15.24" y="71.12" rot="R90"/>
+<instance part="2SK2201" gate="1" x="-17.78" y="45.72"/>
 <instance part="SUPPLY17" gate="GND" x="91.44" y="40.64"/>
+<instance part="C1" gate="G$1" x="96.52" y="12.7"/>
+<instance part="C2" gate="G$1" x="-5.08" y="2.54" rot="R270"/>
 </instances>
 <busses>
 </busses>
@@ -8504,11 +8504,11 @@ grid 2.54 mm</description>
 <pinref part="IC3" gate="G$1" pin="VDD"/>
 <pinref part="SUPPLY3" gate="+5V" pin="+5V"/>
 <wire x1="73.66" y1="15.24" x2="96.52" y2="15.24" width="0.1524" layer="91"/>
-<pinref part="C3" gate="G$1" pin="1"/>
+<pinref part="C1" gate="G$1" pin="1"/>
 <junction x="96.52" y="15.24"/>
 </segment>
 <segment>
-<pinref part="U$1" gate="G$1" pin="VCC"/>
+<pinref part="PL-IRM2161-C438" gate="G$1" pin="VCC"/>
 <wire x1="109.22" y1="30.48" x2="109.22" y2="27.94" width="0.1524" layer="91"/>
 <pinref part="SUPPLY8" gate="+5V" pin="+5V"/>
 <wire x1="109.22" y1="27.94" x2="116.84" y2="27.94" width="0.1524" layer="91"/>
@@ -8523,7 +8523,7 @@ grid 2.54 mm</description>
 </segment>
 <segment>
 <pinref part="SUPPLY14" gate="+5V" pin="+5V"/>
-<pinref part="R10" gate="G$1" pin="2"/>
+<pinref part="R5" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -8540,11 +8540,11 @@ grid 2.54 mm</description>
 <wire x1="91.44" y1="7.62" x2="96.52" y2="7.62" width="0.1524" layer="91"/>
 <pinref part="SUPPLY4" gate="GND" pin="GND"/>
 <wire x1="96.52" y1="7.62" x2="96.52" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="C3" gate="G$1" pin="2"/>
+<pinref part="C1" gate="G$1" pin="2"/>
 <junction x="96.52" y="7.62"/>
 </segment>
 <segment>
-<pinref part="U$1" gate="G$1" pin="GND"/>
+<pinref part="PL-IRM2161-C438" gate="G$1" pin="GND"/>
 <pinref part="SUPPLY9" gate="GND" pin="GND"/>
 </segment>
 <segment>
@@ -8577,14 +8577,14 @@ grid 2.54 mm</description>
 </segment>
 <segment>
 <pinref part="SUPPLY13" gate="GND" pin="GND"/>
-<pinref part="Y1" gate="G$1" pin="GND"/>
+<pinref part="RESONATOR" gate="G$1" pin="GND"/>
 </segment>
 <segment>
 <pinref part="SUPPLY16" gate="GND" pin="GND"/>
-<pinref part="R8" gate="G$1" pin="1"/>
+<pinref part="R6" gate="G$1" pin="1"/>
 </segment>
 <segment>
-<pinref part="Q2" gate="1" pin="S"/>
+<pinref part="2SK2201" gate="1" pin="S"/>
 <pinref part="SUPPLY15" gate="GND" pin="GND"/>
 </segment>
 <segment>
@@ -8612,7 +8612,7 @@ grid 2.54 mm</description>
 <net name="N$19" class="0">
 <segment>
 <pinref part="IC3" gate="G$1" pin="RB3/AN9/CCP2/VPO"/>
-<pinref part="U$1" gate="G$1" pin="VOUT"/>
+<pinref part="PL-IRM2161-C438" gate="G$1" pin="VOUT"/>
 <wire x1="73.66" y1="25.4" x2="99.06" y2="25.4" width="0.1524" layer="91"/>
 <wire x1="99.06" y1="25.4" x2="99.06" y2="30.48" width="0.1524" layer="91"/>
 </segment>
@@ -8623,7 +8623,7 @@ grid 2.54 mm</description>
 <wire x1="-22.86" y1="-2.54" x2="-20.32" y2="-2.54" width="0.1524" layer="91"/>
 <wire x1="-20.32" y1="-2.54" x2="-20.32" y2="12.7" width="0.1524" layer="91"/>
 <wire x1="-20.32" y1="12.7" x2="-2.54" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="Y1" gate="G$1" pin="RIT"/>
+<pinref part="RESONATOR" gate="G$1" pin="RIT"/>
 </segment>
 </net>
 <net name="20MHZ" class="0">
@@ -8633,7 +8633,7 @@ grid 2.54 mm</description>
 <wire x1="-22.86" y1="15.24" x2="-22.86" y2="5.08" width="0.1524" layer="91"/>
 <wire x1="-22.86" y1="5.08" x2="-38.1" y2="5.08" width="0.1524" layer="91"/>
 <wire x1="-38.1" y1="5.08" x2="-38.1" y2="-2.54" width="0.1524" layer="91"/>
-<pinref part="Y1" gate="G$1" pin="LFT"/>
+<pinref part="RESONATOR" gate="G$1" pin="LFT"/>
 </segment>
 </net>
 <net name="N$4" class="0">
@@ -8652,7 +8652,7 @@ grid 2.54 mm</description>
 <segment>
 <pinref part="IC3" gate="G$1" pin="RA4/T0CKI/CIOUT/RCV"/>
 <wire x1="-2.54" y1="22.86" x2="-33.02" y2="22.86" width="0.1524" layer="91"/>
-<pinref part="R6" gate="G$1" pin="2"/>
+<pinref part="R3" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="N$12" class="0">
@@ -8660,25 +8660,19 @@ grid 2.54 mm</description>
 <wire x1="-33.02" y1="12.7" x2="-33.02" y2="20.32" width="0.1524" layer="91"/>
 <pinref part="IC3" gate="G$1" pin="RA5/AN4/!SS!/HLVDIN/C2OUT"/>
 <wire x1="-33.02" y1="20.32" x2="-2.54" y2="20.32" width="0.1524" layer="91"/>
-<pinref part="R7" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$10" class="0">
-<segment>
-<pinref part="IC3" gate="G$1" pin="VUSB"/>
-<pinref part="C2" gate="G$1" pin="1"/>
+<pinref part="R4" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="N$11" class="0">
 <segment>
 <pinref part="LED1" gate="G$1" pin="A"/>
-<pinref part="R6" gate="G$1" pin="1"/>
+<pinref part="R3" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="N$13" class="0">
 <segment>
 <pinref part="LED2" gate="G$1" pin="A"/>
-<pinref part="R7" gate="G$1" pin="1"/>
+<pinref part="R4" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="N$14" class="0">
@@ -8688,33 +8682,33 @@ grid 2.54 mm</description>
 <wire x1="-7.62" y1="33.02" x2="-7.62" y2="86.36" width="0.1524" layer="91"/>
 <wire x1="-7.62" y1="86.36" x2="-30.48" y2="86.36" width="0.1524" layer="91"/>
 <wire x1="-30.48" y1="86.36" x2="-30.48" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="R9" gate="G$1" pin="1"/>
-<pinref part="R8" gate="G$1" pin="2"/>
+<pinref part="R7" gate="G$1" pin="1"/>
+<pinref part="R6" gate="G$1" pin="2"/>
 <junction x="-30.48" y="43.18"/>
 </segment>
 </net>
 <net name="N$16" class="0">
 <segment>
-<pinref part="IRLED" gate="G$1" pin="C"/>
+<pinref part="IRLED2" gate="G$1" pin="C"/>
 <pinref part="IRLED1" gate="G$1" pin="A"/>
 </segment>
 </net>
 <net name="N$15" class="0">
 <segment>
-<pinref part="IRLED" gate="G$1" pin="A"/>
-<pinref part="R10" gate="G$1" pin="1"/>
+<pinref part="IRLED2" gate="G$1" pin="A"/>
+<pinref part="R5" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="N$17" class="0">
 <segment>
 <pinref part="IRLED1" gate="G$1" pin="C"/>
-<pinref part="Q2" gate="1" pin="D"/>
+<pinref part="2SK2201" gate="1" pin="D"/>
 </segment>
 </net>
 <net name="N$18" class="0">
 <segment>
-<pinref part="Q2" gate="1" pin="G"/>
-<pinref part="R9" gate="G$1" pin="2"/>
+<pinref part="2SK2201" gate="1" pin="G"/>
+<pinref part="R7" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="N$7" class="0">
@@ -8727,6 +8721,12 @@ grid 2.54 mm</description>
 <wire x1="73.66" y1="27.94" x2="76.2" y2="27.94" width="0.1524" layer="91"/>
 <wire x1="76.2" y1="27.94" x2="76.2" y2="43.18" width="0.1524" layer="91"/>
 <junction x="76.2" y="43.18"/>
+</segment>
+</net>
+<net name="N$3" class="0">
+<segment>
+<pinref part="IC3" gate="G$1" pin="VUSB"/>
+<pinref part="C2" gate="G$1" pin="1"/>
 </segment>
 </net>
 </nets>
