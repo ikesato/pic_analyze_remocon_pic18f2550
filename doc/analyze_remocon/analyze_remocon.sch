@@ -8444,7 +8444,6 @@ grid 2.54 mm</description>
 <part name="R7" library="rcl" deviceset="R-US_" device="0207/7" value="10KΩ"/>
 <part name="R5" library="rcl" deviceset="R-US_" device="0207/7" value="1Ω"/>
 <part name="2SK2201" library="transistor-power" deviceset="BUZ11" device="BV" value=""/>
-<part name="SUPPLY17" library="supply2" deviceset="GND" device=""/>
 <part name="C1" library="rcl" deviceset="C-EU" device="025-024X044" value="0.1uF"/>
 <part name="C2" library="rcl" deviceset="C-EU" device="025-024X044" value="0.1uF"/>
 </parts>
@@ -8487,7 +8486,6 @@ grid 2.54 mm</description>
 <instance part="R7" gate="G$1" x="-25.4" y="43.18"/>
 <instance part="R5" gate="G$1" x="-15.24" y="71.12" rot="R90"/>
 <instance part="2SK2201" gate="1" x="-17.78" y="45.72"/>
-<instance part="SUPPLY17" gate="GND" x="91.44" y="40.64"/>
 <instance part="C1" gate="G$1" x="96.52" y="12.7"/>
 <instance part="C2" gate="G$1" x="-5.08" y="2.54" rot="R270"/>
 </instances>
@@ -8586,11 +8584,6 @@ grid 2.54 mm</description>
 <segment>
 <pinref part="2SK2201" gate="1" pin="S"/>
 <pinref part="SUPPLY15" gate="GND" pin="GND"/>
-</segment>
-<segment>
-<pinref part="SW2" gate="1" pin="S"/>
-<pinref part="SUPPLY17" gate="GND" pin="GND"/>
-<wire x1="88.9" y1="43.18" x2="91.44" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$1" class="0">
