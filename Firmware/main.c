@@ -660,7 +660,7 @@ void SendIRImpl(void)
 	//IRLED_PORT = 1;
 	IRLED_PORT = 0;
 
-    PutsString("sended ir\r\n");
+    PutsString((char*)"sended ir\r\n");
 
 	LED1_PORT = 0;
 	//IRLED_PORT = 1;
@@ -669,11 +669,8 @@ void SendIRImpl(void)
 
 void PutsString(char *str)
 {
-	//if (!WaitToReadySerial()) return;
-	//putsUSBUSART(str);
-	//if (!WaitToReadySerial()) return;
 	if (!WaitToReadySerial()) return;
-	sprintf(USB_In_Buffer, str);
+	strcpy(USB_In_Buffer, str);
 	putsUSBUSART(USB_In_Buffer);
 	if (!WaitToReadySerial()) return;
 }
