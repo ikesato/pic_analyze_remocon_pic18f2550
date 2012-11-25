@@ -8588,18 +8588,10 @@ grid 2.54 mm</description>
 </net>
 <net name="N$1" class="0">
 <segment>
-<pinref part="IC3" gate="G$1" pin="RC5/D+/VP"/>
 <pinref part="X1" gate="G$1" pin="2"/>
-<wire x1="73.66" y1="5.08" x2="81.28" y2="5.08" width="0.1524" layer="91"/>
-<wire x1="81.28" y1="5.08" x2="81.28" y2="-7.62" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$2" class="0">
-<segment>
+<wire x1="81.28" y1="2.54" x2="81.28" y2="-7.62" width="0.1524" layer="91"/>
 <pinref part="IC3" gate="G$1" pin="RC4/D-/VM"/>
-<pinref part="X1" gate="G$1" pin="3"/>
-<wire x1="73.66" y1="2.54" x2="78.74" y2="2.54" width="0.1524" layer="91"/>
-<wire x1="78.74" y1="2.54" x2="78.74" y2="-7.62" width="0.1524" layer="91"/>
+<wire x1="73.66" y1="2.54" x2="81.28" y2="2.54" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$19" class="0">
@@ -8720,6 +8712,14 @@ grid 2.54 mm</description>
 <segment>
 <pinref part="IC3" gate="G$1" pin="VUSB"/>
 <pinref part="C2" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="N$2" class="0">
+<segment>
+<pinref part="IC3" gate="G$1" pin="RC5/D+/VP"/>
+<pinref part="X1" gate="G$1" pin="3"/>
+<wire x1="73.66" y1="5.08" x2="78.74" y2="5.08" width="0.1524" layer="91"/>
+<wire x1="78.74" y1="5.08" x2="78.74" y2="-7.62" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
