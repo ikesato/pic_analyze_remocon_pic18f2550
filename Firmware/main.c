@@ -162,9 +162,12 @@ void UserInit(void);
 void ButtonProc(void);
 void ReadIR(void);
 void SendIR(void);
+void SendIRImpl(void);
 void DelayIRFreqHi(void);
 void DelayIRFreqLo(void);
 int WaitToReadySerial(void);
+void SerialProc(void);
+void PutsString(char *str);
 
 BYTE ReadBYTEBuffer(WORD pos); // for debug
 
@@ -445,46 +448,90 @@ void UserInit(void)
  *******************************************************************/
 void ProcessIO(void)
 {   
-    BYTE numBytesRead;
-
 	LED1_PORT = 0;
 	IRLED_PORT = 0;
+
 	//IRLED_PORT = 1;
 	ButtonProc();
 	ReadIR();
 	SendIR();
 
-    // User Application USB tasks
-    if((USBDeviceState < CONFIGURED_STATE)||(USBSuspendControl==1)) return;
-
-//	if(USBUSARTIsTxTrfReady())
-//	{
-//		numBytesRead = getsUSBUSART(USB_Out_Buffer,64);
-//		if(numBytesRead != 0)
-//		{
-//			BYTE i;
-//	        
-//			for(i=0;i<numBytesRead;i++)
-//			{
-//				switch(USB_Out_Buffer[i])
-//				{
-//					case 0x0A:
-//					case 0x0D:
-//						USB_In_Buffer[i] = USB_Out_Buffer[i];
-//						break;
-//					default:
-//						USB_In_Buffer[i] = USB_Out_Buffer[i] + 1;
-//						break;
-//				}
-//	
-//			}
-//	
-//			putUSBUSART(USB_In_Buffer,numBytesRead);
-//		}
-//	}
-
+    SerialProc();
     CDCTxService();
-}//end ProcessIO
+}
+
+void SerialProc(void)
+{
+    BYTE numBytesRead;
+	BYTE i;
+    char buff[10];
+    char *buffPtr;
+    char *usbPtr;
+    char state; // -1:first 0:readed '|' 1:readed number
+	BYTE exit;
+	WORD byteOrWord; // 0:未設定
+	WORD pos;
+    WORD v;
+
+    // User Application USB tasks
+    if((USBDeviceState < CONFIGURED_STATE)||(USBSuspendControl==1))
+        return;
+
+	if(!USBUSARTIsTxTrfReady())
+        return;
+
+	numBytesRead = getsUSBUSART(USB_Out_Buffer,64);
+	if(numBytesRead < 2)
+        return;
+
+    state = -1;
+    buffPtr = buff;
+    usbPtr = USB_Out_Buffer;
+	pos = 0;
+	byteOrWord = 0;
+	exit = 0;
+ loop:
+	for(i=0;i<numBytesRead;i++) {
+        if (usbPtr[i]=='\r' || usbPtr[i]=='\n'){
+            if (pos>0) {
+                exit += WriteBuffer(MAX_WAIT_CYCLE,&pos,&byteOrWord);
+                SendIRImpl();
+            }
+            return;
+        } else if (state==-1) {
+            if (usbPtr[i] != '|') {
+                PutsString((char*)"parse error. need '|'.\r\n");
+                return;
+            }
+            state = 0;
+        } else if (state==0) {
+            if(usbPtr[i] != 'H' && usbPtr[i] != 'L') {
+                PutsString((char*)"parse error. need 'H' or 'L'.\r\n");
+                return;
+            }
+            state = 1;
+        } else if (state==1) {
+            if (usbPtr[i] == '|') {
+                state = 0;
+                if (buffPtr==buff) {
+                    PutsString((char*)"parse error. need number.\r\n");
+                    return;
+                }
+                *buffPtr++ = '\0';
+                v = atoi(buff);
+                exit += WriteBuffer(v,&pos,&byteOrWord);
+                buffPtr = buff;
+            } else if ('0' <= usbPtr[i] && usbPtr[i] <= '9') {
+                *buffPtr++ = usbPtr[i];
+            } else {
+                PutsString((char*)"parse error. need '|' or number.\r\n");
+                return;
+            }
+        }
+    }
+	numBytesRead = getsUSBUSART(USB_Out_Buffer,64);
+    goto loop;
+}
 
 
 void ButtonProc(void)
@@ -561,13 +608,17 @@ void ReadIR(void)
 
 void SendIR(void)
 {
+	if ((ButtonUpState() & SW_BIT)==0)
+		return;
+    SendIRImpl();
+}
+
+void SendIRImpl(void)
+{
 	WORD t,wait;
 	BYTE hilo;
 	WORD pos;
 	WORD byteOrWord; // 0:未設定
-
-	if ((ButtonUpState() & SW_BIT)==0)
-		return;
 
 	WriteTimer0(0);
 	INTCONbits.TMR0IF = 0;
@@ -609,15 +660,24 @@ void SendIR(void)
 	//IRLED_PORT = 1;
 	IRLED_PORT = 0;
 
-	if (!WaitToReadySerial()) return;
-	sprintf(USB_In_Buffer, (far rom char*)"sended ir\r\n");
-	putsUSBUSART(USB_In_Buffer);
-	if (!WaitToReadySerial()) return;
+    PutsString("sended ir\r\n");
 
 	LED1_PORT = 0;
 	//IRLED_PORT = 1;
 	IRLED_PORT = 0;
 }
+
+void PutsString(char *str)
+{
+	//if (!WaitToReadySerial()) return;
+	//putsUSBUSART(str);
+	//if (!WaitToReadySerial()) return;
+	if (!WaitToReadySerial()) return;
+	sprintf(USB_In_Buffer, str);
+	putsUSBUSART(USB_In_Buffer);
+	if (!WaitToReadySerial()) return;
+}
+
 
 // 38KHz のデューティー比 33% の HI で待つ
 // HI:105.263157894737[cycle] == 8.77192982456142[us]
