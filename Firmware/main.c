@@ -167,7 +167,7 @@ void DelayIRFreqHi(void);
 void DelayIRFreqLo(void);
 int WaitToReadySerial(void);
 void SerialProc(void);
-void PutsString(char *str);
+void PutsString(const rom char *str);
 
 BYTE ReadBYTEBuffer(WORD pos); // for debug
 
@@ -500,13 +500,13 @@ void SerialProc(void)
             return;
         } else if (state==-1) {
             if (usbPtr[i] != '|') {
-                PutsString((char*)"parse error. need '|'.\r\n");
+                PutsString("parse error. need '|'.\r\n");
                 return;
             }
             state = 0;
         } else if (state==0) {
             if(usbPtr[i] != 'H' && usbPtr[i] != 'L') {
-                PutsString((char*)"parse error. need 'H' or 'L'.\r\n");
+                PutsString("parse error. need 'H' or 'L'.\r\n");
                 return;
             }
             state = 1;
@@ -514,7 +514,7 @@ void SerialProc(void)
             if (usbPtr[i] == '|') {
                 state = 0;
                 if (buffPtr==buff) {
-                    PutsString((char*)"parse error. need number.\r\n");
+                    PutsString("parse error. need number.\r\n");
                     return;
                 }
                 *buffPtr++ = '\0';
@@ -524,7 +524,7 @@ void SerialProc(void)
             } else if ('0' <= usbPtr[i] && usbPtr[i] <= '9') {
                 *buffPtr++ = usbPtr[i];
             } else {
-                PutsString((char*)"parse error. need '|' or number.\r\n");
+                PutsString("parse error. need '|' or number.\r\n");
                 return;
             }
         }
@@ -660,17 +660,17 @@ void SendIRImpl(void)
 	//IRLED_PORT = 1;
 	IRLED_PORT = 0;
 
-    PutsString((char*)"sended ir\r\n");
+    PutsString("sended ir\r\n");
 
 	LED1_PORT = 0;
 	//IRLED_PORT = 1;
 	IRLED_PORT = 0;
 }
 
-void PutsString(char *str)
+void PutsString(const rom char *str)
 {
 	if (!WaitToReadySerial()) return;
-	strcpy(USB_In_Buffer, str);
+	strcpypgm2ram(USB_In_Buffer, (const far rom char*)str);
 	putsUSBUSART(USB_In_Buffer);
 	if (!WaitToReadySerial()) return;
 }
