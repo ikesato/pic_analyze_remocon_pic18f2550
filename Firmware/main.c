@@ -618,6 +618,7 @@ void PrintIRBuffer(void)
 	WORD pos;
 	char separator[2] = {'\0','\0'};
 
+	PutsString("");  // なぜかこの出力がないと１発目が化ける
 
 	hilo = 1;
 	pos = 0;
