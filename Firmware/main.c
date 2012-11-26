@@ -169,7 +169,7 @@ int WaitToReadySerial(void);
 void SerialProc(void);
 void PutsString(const rom char *str);
 void PutsStringCPtr(char *str);
-void PrintBuffer(void);
+void PrintIRBuffer(void);
 
 BYTE ReadBYTEBuffer(WORD pos); // for debug
 
@@ -469,7 +469,7 @@ void SerialProc(void)
     char buff[10];
     char *buffPtr;
     char *usbPtr;
-    char state; // -1:first 0:readed '|' 1:readed number
+    char state; // 0:readed ',' 1:readed number
 	BYTE exit;
 	WORD byteOrWord; // 0:未設定
 	WORD pos;
@@ -488,7 +488,7 @@ void SerialProc(void)
 	if(numBytesRead == 0)
         return;
 
-    state = -1;
+    state = 0;
     buffPtr = buff;
     usbPtr = USB_Out_Buffer;
 	pos = 0;
@@ -498,20 +498,23 @@ void SerialProc(void)
 	for(i=0;i<numBytesRead;i++) {
         if (usbPtr[i]=='\r' || usbPtr[i]=='\n'){
             if (pos>0) {
+                if (buffPtr==buff) {
+                    sprintf(USB_In_Buffer,
+                            (far rom char*)"parse error. need number. [%d,%c]\r\n",
+                            bpos+i,usbPtr[i]);
+                    PutsStringCPtr(USB_In_Buffer);
+                    return;
+                }
+                *buffPtr++ = '\0';
+                v = atoi(buff);
+                exit += WriteBuffer(v,&pos,&byteOrWord);
+                buffPtr = buff;
+
                 WriteEOF(pos);
-                PrintBuffer();
+                PrintIRBuffer();
                 SendIRImpl();
             }
             return;
-        } else if (state==-1) {
-            if (usbPtr[i] != '|') {
-                sprintf(USB_In_Buffer,
-                        (far rom char*)"parse error. need '|'. [%d,%c]\r\n",
-                        bpos+i,usbPtr[i]);
-                PutsStringCPtr(USB_In_Buffer);
-                return;
-            }
-            state = 0;
         } else if (state==0) {
             if(usbPtr[i] != 'H' && usbPtr[i] != 'L') {
                 sprintf(USB_In_Buffer,
@@ -522,7 +525,7 @@ void SerialProc(void)
             }
             state = 1;
         } else if (state==1) {
-            if (usbPtr[i] == '|') {
+            if (usbPtr[i] == ',') {
                 state = 0;
                 if (buffPtr==buff) {
                     sprintf(USB_In_Buffer,
@@ -539,7 +542,7 @@ void SerialProc(void)
                 *buffPtr++ = usbPtr[i];
             } else {
                 sprintf(USB_In_Buffer,
-                        (far rom char*)"parse error. need '|' or number. [%d,%c]\r\n",
+                        (far rom char*)"parse error. need ',' or number. [%d,%c]\r\n",
                         bpos+i,usbPtr[i]);
                 PutsStringCPtr(USB_In_Buffer);
                 return;
@@ -604,15 +607,16 @@ void ReadIR(void)
 
 	if (!WaitToReadySerial())
 		return;
-    PrintBuffer();
+    PrintIRBuffer();
 }
 
-void PrintBuffer(void)
+void PrintIRBuffer(void)
 {
 	WORD t;
 	BYTE hilo;
 	WORD byteOrWord; // 0:未設定
 	WORD pos;
+	char separator[2] = {'\0','\0'};
 
 
 	hilo = 1;
@@ -623,14 +627,16 @@ void PrintBuffer(void)
 		t = ReadBuffer(&pos,&byteOrWord);
 		if (t==BUFF_EOF)
 			break;
-		sprintf(USB_In_Buffer, (far rom char*)"|%c%u",
+		sprintf(USB_In_Buffer, (far rom char*)"%s%c%u",
+				separator,
 				hilo ? 'H' : 'L',
 				t);
 		putsUSBUSART(USB_In_Buffer);
 		hilo=!hilo;
+		separator[0] = ',';
 	}
 	if (!WaitToReadySerial()) return;
-	sprintf(USB_In_Buffer, (far rom char*)"|\r\n");
+	sprintf(USB_In_Buffer, (far rom char*)"\r\n");
 	putsUSBUSART(USB_In_Buffer);
 	if (!WaitToReadySerial()) return;
 }
