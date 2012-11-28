@@ -169,7 +169,7 @@ int WaitToReadySerial(void);
 void SerialProc(void);
 void PutsString(const rom char *str);
 void PutsStringCPtr(char *str);
-void PrintIRBuffer(void);
+void PrintIRBuffer(const rom char *title);
 
 BYTE ReadBYTEBuffer(WORD pos); // for debug
 
@@ -511,7 +511,7 @@ void SerialProc(void)
                 buffPtr = buff;
 
                 WriteEOF(pos);
-                PrintIRBuffer();
+                PrintIRBuffer("echo,");
                 SendIRImpl();
             }
             return;
@@ -521,6 +521,9 @@ void SerialProc(void)
                         (far rom char*)"parse error. need 'H' or 'L'. [%d,%c]\r\n",
                         bpos+i,usbPtr[i]);
                 PutsStringCPtr(USB_In_Buffer);
+
+                WriteEOF(pos);
+                PrintIRBuffer("echo,");
                 return;
             }
             state = 1;
@@ -532,6 +535,8 @@ void SerialProc(void)
                             (far rom char*)"parse error. need number. [%d,%c]\r\n",
                             bpos+i,usbPtr[i]);
                     PutsStringCPtr(USB_In_Buffer);
+                    WriteEOF(pos);
+                    PrintIRBuffer("echo,");
                     return;
                 }
                 *buffPtr++ = '\0';
@@ -545,6 +550,8 @@ void SerialProc(void)
                         (far rom char*)"parse error. need ',' or number. [%d,%c]\r\n",
                         bpos+i,usbPtr[i]);
                 PutsStringCPtr(USB_In_Buffer);
+                WriteEOF(pos);
+                PrintIRBuffer("echo,");
                 return;
             }
         }
@@ -607,10 +614,10 @@ void ReadIR(void)
 
 	if (!WaitToReadySerial())
 		return;
-    PrintIRBuffer();
+    PrintIRBuffer("received,");
 }
 
-void PrintIRBuffer(void)
+void PrintIRBuffer(const rom char *title)
 {
 	WORD t;
 	BYTE hilo;
@@ -619,6 +626,8 @@ void PrintIRBuffer(void)
 	char separator[2] = {'\0','\0'};
 
 	PutsString("");  // なぜかこの出力がないと１発目が化ける
+
+	PutsString(title);
 
 	hilo = 1;
 	pos = 0;
