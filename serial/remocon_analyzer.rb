@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-require "sony_analyzer"
-require "nil_analyzer"
+require "sony_format"
+require "raw_format"
 
 class RemoconAnalyzer
+  UNIT = 5.33333 * 0.001 # [ms]
+
   def self.parse(raw_str)
     ra = RemoconAnalyzer.new
     ra._parse(raw_str)
@@ -12,6 +14,7 @@ class RemoconAnalyzer
 
   def _parse(raw_str)
     ary=raw_str.split(",")
+    raise "parse error. first data should 'received'" if ary.shift != "received"
     ary.map! {|a|
       if a[0] != 'H' && a[0] != 'L'
         raise "parse error. need 'H' or 'L'"
@@ -19,17 +22,26 @@ class RemoconAnalyzer
       a[1..-1]
     }
     ary.compact!
-    ary.map! {|a| a.to_i * 5.33333 * 0.001} # ms になおす
+    ary.map! {|a| a.to_i * UNIT} # ms になおす
     @raw = ary
 
-    @analyzer = nil
-    @analyzer ||= SonyAnalyzer.parse(@raw)
-   #@analyzer ||= KadenkyoAnalyzer.parse(@raw)
-    @analyzer ||= NilAnalyzer.parse(@raw)
-    @analyzer
+    @format = nil
+    @format ||= SonyFormat.parse(@raw)
+   #@format ||= KadenkyoFormat.parse(@raw)
+    @format ||= RawFormat.parse(@raw)
+    @format
   end
 
   def dump
-    @analyzer.dump
+    @format.dump
+  end
+
+  def self.send_data(str)
+    ary = SonyFormat.send_ary(str) ||
+#         RawFormat.send_ary(str) ||
+          nil
+    return nil if ary.nil?
+    i=0
+    ary.map{|a| "#{(i+=1)&1 == 1 ? 'H' : 'L'}#{(a/UNIT).to_i}"}.join(",")
   end
 end

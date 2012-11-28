@@ -6,6 +6,15 @@ $LOAD_PATH.push "."
 require "rubygems"
 require "serialport"
 require "remocon_analyzer"
+require 'optparse'
+
+debug=false
+OptionParser.new {|opt|
+  opt.on("--debug") {
+    debug=true
+  }
+  opt.parse!(ARGV)
+}
 
 PORT=ARGV.shift
 SPEED=ARGV.shift || 19200
@@ -18,9 +27,15 @@ Thread.new do
     loop do
       line = sp.gets
       line = line.scan(/[[:print:]]/).join
-      #puts line
-      r=RemoconAnalyzer.parse(line)
-      puts r.dump
+      if line.index("received,")==0
+        r=RemoconAnalyzer.parse(line)
+        puts r.dump
+        puts line if debug
+      elsif line.index("echo,")==0
+        puts line if debug
+      else
+        puts line
+      end
     end
   rescue =>ex
     puts ex
@@ -31,6 +46,10 @@ end
 
 # send
 loop do
-  sp.write STDIN.getc.chr
+  #sp.write STDIN.getc.chr
+  str = STDIN.gets
+  data = RemoconAnalyzer.send_data(str)
+  next if data.nil?
+  (data+"\r\n").each_char {|s| sp.write s} # 1文字づつ転送する（バッファがあふれるので）
 end
 sp.close
