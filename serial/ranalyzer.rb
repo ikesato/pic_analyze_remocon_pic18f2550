@@ -9,15 +9,24 @@ require "remocon_analyzer"
 require 'optparse'
 
 debug=false
+SPEED=19200
 OptionParser.new {|opt|
   opt.on("--debug") {
     debug=true
+  }
+  opt.on("--help") {
+    puts "Usage: #{File.basename($0)} [OPTION] USB_TTY"
+    puts ""
+    puts "Options:"
+    puts "  -b, --baud_rate specify the baud rate of serial communication"
+    puts "                  default is 19200"
+    puts "  -h, --help      display this help and exit"
+    exit 1
   }
   opt.parse!(ARGV)
 }
 
 PORT=ARGV.shift
-SPEED=ARGV.shift || 19200
 
 sp = SerialPort.new(PORT, SPEED, 8, 1, 0) # 8bit, stopbit 1, parity none
 
