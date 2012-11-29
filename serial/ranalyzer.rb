@@ -35,6 +35,10 @@ Thread.new do
   begin
     loop do
       line = sp.gets
+      if line==nil
+        puts "Device was detattched. [#{PORT}]"
+        exit 1
+      end
       line = line.scan(/[[:print:]]/).join
       if line.index("received,")==0
         r=RemoconAnalyzer.parse(line)
@@ -47,9 +51,7 @@ Thread.new do
       end
     end
   rescue =>ex
-    puts ex
-    puts "Device was detattched. [#{PORT}]"
-    exit 1
+    Thread.main.raise ex
   end
 end
 
