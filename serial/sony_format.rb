@@ -24,7 +24,7 @@ class SonyFormat
     "#{NAME} #{@bit_length}bit [#{@values.map{|v| sprintf("0x%08x",v)}.join(",")}]"
   end
 
-  def self.send_ary(str)
+  def self.make_send_ary(str)
     return false if str !~ /#{NAME} (\d+)bit \[([\da-fA-F0x,]+)\]/
     bl = $1.to_i # bit length
     ary = $2.split(",").map{|s| s.hex}

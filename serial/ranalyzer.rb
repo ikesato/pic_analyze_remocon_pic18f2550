@@ -57,7 +57,7 @@ end
 loop do
   #sp.write STDIN.getc.chr
   str = STDIN.gets
-  data = RemoconAnalyzer.send_data(str)
+  data = RemoconAnalyzer.make_send_data(str)
   next if data.nil?
   (data+"\r\n").each_char {|s| sp.write s} # 1文字づつ転送する（バッファがあふれるので）
 end

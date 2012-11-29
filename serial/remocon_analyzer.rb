@@ -36,9 +36,9 @@ class RemoconAnalyzer
     @format.dump
   end
 
-  def self.send_data(str)
-    ary = SonyFormat.send_ary(str) ||
-#         RawFormat.send_ary(str) ||
+  def self.make_send_data(str)
+    ary = SonyFormat.make_send_ary(str) ||
+#         RawFormat.make_send_ary(str) ||
           nil
     return nil if ary.nil?
     i=0
