@@ -1,7 +1,7 @@
 #!/bin/env ruby
 # -*- coding: utf-8 -*-
 
-$LOAD_PATH.push "."
+$LOAD_PATH.push File.dirname($0)
 
 require "rubygems"
 require "serialport"
