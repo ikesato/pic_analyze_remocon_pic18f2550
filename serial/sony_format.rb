@@ -44,7 +44,6 @@ class SonyFormat
     frames = ary.map{|s|
       s.split(" ").compact.map{|v| v.hex}
     }
-    p frames
 
     ret = []
     frames.each {|frame|
