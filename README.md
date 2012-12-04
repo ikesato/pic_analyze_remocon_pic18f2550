@@ -76,8 +76,8 @@ PIC タイマー0 について
 datas
 -----
 - Aiwa リモコン => NECフォーマット
-    nec T=0.559[ms] 42bit [7b 80 f0 03 fc 03, REP8T] # 電源
-    nec T=0.561[ms] 42bit [7b 80 f0 03 fc 03, REP8T, REP8T, REP8T, REP8T] # 電源長押
+    nec T=0.559[ms] 42bit [7b 80 f0 03 fc 03, REP8T] # 電源 
+    nec T=0.561[ms] 42bit [7b 80 f0 03 fc 03, REP8T, REP8T, REP8T, REP8T] # 電源長押 
     nec T=0.558[ms] 42bit [7b 80 f0 3b c4 03, REP8T] # テレビ/ビデオ
     nec T=0.558[ms] 42bit [7b 80 f0 0b f5 02, REP8T] # オフタイマー
     nec T=0.559[ms] 42bit [7b 80 f0 0f f1 02, REP8T] # おやすみタイマー
