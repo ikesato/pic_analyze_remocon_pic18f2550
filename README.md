@@ -155,6 +155,7 @@ datas
 
 
 - Sony すごろく => SONY フォーマット
+
  sony T=0.586[ms] 20bit [15 ad 0f, 15 ad 0f, 15 ad 0f] # 電源
  sony T=0.586[ms] 20bit [16 ad 0f, 16 ad 0f, 16 ad 0f] # 開閉
  sony T=0.587[ms] 20bit [64 ad 0f, 64 ad 0f, 64 ad 0f] # 音声切換
