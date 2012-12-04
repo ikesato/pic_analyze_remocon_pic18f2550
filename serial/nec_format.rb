@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+require "fixnum_ary"
+
 # T:0.56ms (1T=105)
 # Leader : H16T L8T
 # 0      : H1T L1T
@@ -24,79 +26,61 @@ class NECFormat
   end
 
   def dump
-    values_str = @values.map {|v|
-      if v==REPEATER4T || v==REPEATER8T
-        v
+    t = sprintf("%.3f",@data[:t])
+    bitlen = @data[:bit_length]
+    bytelen = (bitlen+8-1)/8
+
+    frames = []
+    @data[:frames].each {|f|
+      if f==REPEATER4T || f==REPEATER8T
+        frames << f
       else
-        sprintf("%02x",v)
+        a = f.to_a
+        a = (a + [0]*(bytelen-a.length))
+        frames << a.map {|i| sprintf("%02x",i)}.join(" ")
       end
     }
-    "#{NAME} #{@bit_length}bit [#{values_str.join(" ")}]"
+    "#{NAME} T=#{t}[ms] #{bitlen}bit [#{frames.join(", ")}]"
   end
 
   def self.make_send_ary(str)
-    # TODO:
-    return false if str !~ /#{NAME} (\d+)bit \[((?:[\da-fA-F ]|#{REPEATER4T}|#{REPEATER8T})+)\]/
-    bl = $1.to_i # bit length
-    ary = $2.split(" ").map {|v|
-      if v==REPEATER4T || v==REPEATER8T
-        v
-      else
-        v.hex
-      end
-    }
+    return false if str !~ /#{NAME} T=([\d\.]+)\[ms\] (\d+)bit \[((?:[\da-f ,]|#{REPEATER4T}|#{REPEATER8T})+)\]/
+
+    t = $1.to_f
+    bitlen = $2.to_i # bit length
+    ary = $3.split(",").map{|m| m.strip}
 
     frames = []
-    need_leader=true
     bitpos=0
     frame=[]
     ary.each {|v|
+      frame=[]
       if v==REPEATER4T
-        frame=[]
-        frame << 16*T
-        frame << 4*T
-        frame << 1*T
+        frame << 16*t
+        frame << 4*t
+        frame << 1*t
         frame << (FRAME_CYCLE - frame.inject(0){|sum,i| sum+i})
-        need_leader=true
       elsif v==REPEATER8T
-        frame=[]
-        frame << 16*T
-        frame << 8*T
-        frame << 1*T
+        frame << 16*t
+        frame << 8*t
+        frame << 1*t
         frame << (FRAME_CYCLE - frame.inject(0){|sum,i| sum+i})
-        need_leader=true
       else
-        if need_leader
-          need_leader = false
-          frame=[]
-          frame << 16*T
-          frame << 8*T
-          bitpos=0
-        end
-        if bitpos+8 >= bl
-          last=true
-          count=bl-bitpos
-        else
-          last=false
-          count=8
-        end
-        bitpos += 8
-        count.times {|i|
+        frame << 16*t
+        frame << 8*t
+        code = v.split(" ").compact.map{|a| a.hex}.to_num
+        bitlen.times {|i|
           # hi
-          frame << 1*T
+          frame << 1*t
           # lo
-          if v & (1 << i) != 0
-            frame << 3*T
+          if code & (1 << i) != 0
+            frame << 3*t
           else
-            frame << 1*T
+            frame << 1*t
           end
         }
-        if last
-          frame << 1*T
-          frame << FRAME_CYCLE - frame.inject(0){|sum,i| sum+i}
-        else
-          next
-        end
+        frame << 1*t
+        frame << FRAME_CYCLE - frame.inject(0){|sum,i| sum+i}
       end
       frames += frame
     }
@@ -105,31 +89,47 @@ class NECFormat
 
   private
   def read_frame(raw)
-    @values = []
+    @data = {:t=>0, :bit_length=>0, :frames=>[]}
     frame_cycle = []
     bits_length = []
+    tsum = 0
+    tcount = 0
+
     while raw.length >= 2
-      frame = raw[0]+raw[1]
+      cycle = raw[0]+raw[1]
       leader = [raw.shift, raw.shift]
 
-      if (16*T - leader[0]).abs/16*T < 0.1 && (8*T - leader[1]).abs/8*T < 0.1
-        values, _frame, bitlen = read_code(raw,frame)
+      if (16*T - leader[0]).abs/16*T < 0.1 &&
+         (8*T - leader[1]).abs/8*T < 0.1
+        tsum += leader[0]+leader[1]
+        tcount += 16+8
+        values, _cycle, bitlen, _tsum, _tcount = read_code(raw,cycle)
         return false if values.nil?
-        @values += values
-        frame_cycle << _frame+frame unless _frame.nil?
+        @data[:frames] << values
+        unless _cycle.nil?
+          tsum += _tsum
+          tcount += _tcount
+          frame_cycle << _cycle + cycle
+        end
         bits_length << bitlen unless bitlen.nil?
-      elsif (16*T - leader[0]).abs/16*T < 0.1 && (4*T - leader[1]).abs/4*T < 0.1
+      elsif (16*T - leader[0]).abs/16*T < 0.1 &&
+            (4*T - leader[1]).abs/4*T < 0.1
+        tsum += leader[0]+leader[1]
+        tcount += 16+4
         # TODO:実際のリモコンで試したい
-        frame = read_repeater(raw,frame)
-        return false if frame.nil?
-        @values << REPEATER4T
-        frame_cycle << frame
+        raise "TODO:implement"
+        _cycle = read_repeater(raw,cycle)
+        return false if _cycle.nil?
+        @data[:frames] << REPEATER4T
+        frame_cycle << _cycle
       else
         return false
       end
     end
-    @bit_length = bits_length.inject(0){|sum, i| sum + i}/bits_length.length
-    return false if @bit_length != bits_length[0] #全bit長が同じであること
+
+    @data[:bit_length] = bits_length.inject(0){|sum, i| sum + i}/bits_length.length
+    return false if @data[:bit_length] != bits_length[0] #全bit長が同じであること
+    @data[:t] = tsum / tcount
 
     if frame_cycle.length>1
       frame_cycle.each {|f|
@@ -143,18 +143,26 @@ class NECFormat
     count = 0
     values = []
     bit = 0
-    frame = 0
+    tsum = 0
+    tcount = 0
+    cycle = 0;
     while raw.length >= 2
-      frame += raw[0]+raw[1]
+      cycle += raw[0]+raw[1]
       hi = raw.shift
       lo = raw.shift
       return nil if (1*T - hi).abs / 1*T > 0.1
+      tsum += hi
+      tcount += 1
 
       v = nil
       if (1*T - lo).abs / 1*T < 0.1
         v = 0
+        tsum += lo
+        tcount += 1
       elsif (3*T - lo).abs / 3*T < 0.1
         v = 1
+        tsum += lo
+        tcount += 3
       end
 
       if v==1
@@ -169,17 +177,17 @@ class NECFormat
       if v.nil?
         if count==32 || count==42
           # 1フレーム終わり
-          values << bit if count==42
-          return values, frame, count
+          values << bit if count%8 != 0
+          return values, cycle, count, tsum, tcount
         else
           if count==0
             # leader が同じでリピータの場合がある
             if raw.empty?
-              return [REPEATER8T], nil, nil
+              return REPEATER8T, nil, nil
             end
-            frame = read_repeater([hi,lo],frame_leader,true)
-            unless frame.nil?
-              return [REPEATER8T], frame, nil
+            cycle = read_repeater([hi,lo],frame_leader,true)
+            unless cycle.nil?
+              return REPEATER8T, cycle, nil, tsum, tcount
             end
           end
           return nil
@@ -194,14 +202,14 @@ class NECFormat
     return nil if raw.length < 2
     hi = raw.shift
     lo = raw.shift
-    frame = hi+lo
+    cycle = hi+lo
     return nil if (1*T - hi).abs / 1*T > 0.1
     if raw.length>0 || force_check
       # データが終端でなければ長さチェックを行う
-      return nil if (FRAME_CYCLE - (frame+frame_leader)).abs / FRAME_CYCLE > 0.1
+      return nil if (FRAME_CYCLE - (cycle+frame_leader)).abs / FRAME_CYCLE > 0.1
     else
-      frame = FRAME_CYCLE-frame_leader
+      cycle = FRAME_CYCLE-frame_leader
     end
-    frame
+    cycle
   end
 end
