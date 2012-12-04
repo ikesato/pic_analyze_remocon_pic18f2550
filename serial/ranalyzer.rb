@@ -62,7 +62,6 @@ end
 
 # send
 loop do
-  #sp.write STDIN.getc.chr
   str = STDIN.gets
   data = RemoconAnalyzer.make_send_data(str)
   next if data.nil?
