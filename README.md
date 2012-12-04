@@ -76,144 +76,143 @@ PIC タイマー0 について
 datas
 -----
 - Aiwa リモコン => NECフォーマット
- nec T=0.559[ms] 42bit [7b 80 f0 03 fc 03, REP8T] # 電源
- nec T=0.561[ms] 42bit [7b 80 f0 03 fc 03, REP8T, REP8T, REP8T, REP8T] # 電源長押
- nec T=0.558[ms] 42bit [7b 80 f0 3b c4 03, REP8T] # テレビ/ビデオ
- nec T=0.558[ms] 42bit [7b 80 f0 0b f5 02, REP8T] # オフタイマー
- nec T=0.559[ms] 42bit [7b 80 f0 0f f1 02, REP8T] # おやすみタイマー
- nec T=0.559[ms] 42bit [7b 80 f0 f3 0d 02, REP8T] # ゲーム
- nec T=0.559[ms] 42bit [7b 80 f0 07 f8 03, REP8T] # 1ch
- nec T=0.559[ms] 42bit [7b 80 f0 0b f4 03, REP8T] # 2ch
- nec T=0.559[ms] 42bit [7b 80 f0 0f f0 03, REP8T] # 3ch
- nec T=0.559[ms] 42bit [7b 80 f0 13 ec 03, REP8T] # 4ch
- nec T=0.559[ms] 42bit [7b 80 f0 17 e8 03, REP8T] # 5ch
- nec T=0.560[ms] 42bit [7b 80 f0 1b e4 03, REP8T] # 6ch
- nec T=0.560[ms] 42bit [7b 80 f0 1f e0 03, REP8T] # 7ch
- nec T=0.561[ms] 42bit [7b 80 f0 23 dc 03, REP8T] # 8ch
- nec T=0.559[ms] 42bit [7b 80 f0 27 d8 03, REP8T] # 9ch
- nec T=0.559[ms] 42bit [7b 80 f0 2b d4 03, REP8T] # 10ch
- nec T=0.560[ms] 42bit [7b 80 f0 2f d0 03, REP8T] # 11ch
- nec T=0.559[ms] 42bit [7b 80 f0 33 cc 03, REP8T] # 12ch
- nec T=0.560[ms] 42bit [7b 80 f0 e7 1a 01, REP8T] # ミッドナイトシアター
- nec T=0.560[ms] 42bit [7b 80 f0 4f b0 03, REP8T] # 音多モード
- nec T=0.559[ms] 42bit [7b 80 f0 8f 71 02, REP8T] # ピクチャーメニュー
- nec T=0.559[ms] 42bit [7b 80 f0 3f c1 02, REP8T] # 表示切り替え
- nec T=0.559[ms] 42bit [7b 80 f0 2b d5 02, REP8T] # ミュート
- nec T=0.560[ms] 42bit [7b 80 f0 6f 90 03, REP8T] # メニュー
- nec T=0.559[ms] 42bit [7b 80 f0 ab 55 02, REP8T] # 決定
- nec T=0.559[ms] 42bit [7b 80 f0 03 fd 02, REP8T] # チャンネルup
- nec T=0.559[ms] 42bit [7b 80 f0 07 f9 02, REP8T] # チャンネルdown
- nec T=0.559[ms] 42bit [7b 80 f0 63 9c 03, REP8T] # 音量up
- nec T=0.559[ms] 42bit [7b 80 f0 67 98 03, REP8T] # 音量down
+    nec T=0.559[ms] 42bit [7b 80 f0 03 fc 03, REP8T] # 電源
+    nec T=0.561[ms] 42bit [7b 80 f0 03 fc 03, REP8T, REP8T, REP8T, REP8T] # 電源長押
+    nec T=0.558[ms] 42bit [7b 80 f0 3b c4 03, REP8T] # テレビ/ビデオ
+    nec T=0.558[ms] 42bit [7b 80 f0 0b f5 02, REP8T] # オフタイマー
+    nec T=0.559[ms] 42bit [7b 80 f0 0f f1 02, REP8T] # おやすみタイマー
+    nec T=0.559[ms] 42bit [7b 80 f0 f3 0d 02, REP8T] # ゲーム
+    nec T=0.559[ms] 42bit [7b 80 f0 07 f8 03, REP8T] # 1ch
+    nec T=0.559[ms] 42bit [7b 80 f0 0b f4 03, REP8T] # 2ch
+    nec T=0.559[ms] 42bit [7b 80 f0 0f f0 03, REP8T] # 3ch
+    nec T=0.559[ms] 42bit [7b 80 f0 13 ec 03, REP8T] # 4ch
+    nec T=0.559[ms] 42bit [7b 80 f0 17 e8 03, REP8T] # 5ch
+    nec T=0.560[ms] 42bit [7b 80 f0 1b e4 03, REP8T] # 6ch
+    nec T=0.560[ms] 42bit [7b 80 f0 1f e0 03, REP8T] # 7ch
+    nec T=0.561[ms] 42bit [7b 80 f0 23 dc 03, REP8T] # 8ch
+    nec T=0.559[ms] 42bit [7b 80 f0 27 d8 03, REP8T] # 9ch
+    nec T=0.559[ms] 42bit [7b 80 f0 2b d4 03, REP8T] # 10ch
+    nec T=0.560[ms] 42bit [7b 80 f0 2f d0 03, REP8T] # 11ch
+    nec T=0.559[ms] 42bit [7b 80 f0 33 cc 03, REP8T] # 12ch
+    nec T=0.560[ms] 42bit [7b 80 f0 e7 1a 01, REP8T] # ミッドナイトシアター
+    nec T=0.560[ms] 42bit [7b 80 f0 4f b0 03, REP8T] # 音多モード
+    nec T=0.559[ms] 42bit [7b 80 f0 8f 71 02, REP8T] # ピクチャーメニュー
+    nec T=0.559[ms] 42bit [7b 80 f0 3f c1 02, REP8T] # 表示切り替え
+    nec T=0.559[ms] 42bit [7b 80 f0 2b d5 02, REP8T] # ミュート
+    nec T=0.560[ms] 42bit [7b 80 f0 6f 90 03, REP8T] # メニュー
+    nec T=0.559[ms] 42bit [7b 80 f0 ab 55 02, REP8T] # 決定
+    nec T=0.559[ms] 42bit [7b 80 f0 03 fd 02, REP8T] # チャンネルup
+    nec T=0.559[ms] 42bit [7b 80 f0 07 f9 02, REP8T] # チャンネルdown
+    nec T=0.559[ms] 42bit [7b 80 f0 63 9c 03, REP8T] # 音量up
+    nec T=0.559[ms] 42bit [7b 80 f0 67 98 03, REP8T] # 音量down
 
 
 
 - Victor テレビリモコン => JVCフォーマット
- jvc T=0.516[ms] CYCLE=44.5[ms] 16bit [03 17, 03 17] # 電源
- jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 00, 03 00] # 音声切換
- jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 03, 03 03] # オフタイマー
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 10, 03 10] # アナログ
- jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [0f 15, 0f 15] # デジタル
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 0c, 03 0c] # BS
- jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [0f 14, 0f 14] # CS
- jvc T=0.515[ms] CYCLE=44.6[ms] 16bit [03 21, 03 21] # 1ch
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 22, 03 22] # 2ch
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 23, 03 23] # 3ch
- jvc T=0.515[ms] CYCLE=44.6[ms] 16bit [03 24, 03 24] # 4ch
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 25, 03 25] # 5ch
- jvc T=0.515[ms] CYCLE=44.6[ms] 16bit [03 26, 03 26] # 6ch
- jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 27, 03 27] # 7ch
- jvc T=0.515[ms] CYCLE=44.6[ms] 16bit [03 28, 03 28] # 8ch
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 29, 03 29] # 9ch
- jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 2a, 03 2a] # 10ch
- jvc T=0.516[ms] CYCLE=44.5[ms] 16bit [03 2b, 03 2b] # 11ch
- jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 2c, 03 2c] # 12ch
- jvc T=0.518[ms] CYCLE=44.6[ms] 16bit [03 1e, 03 1e] # 音量up
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 1f, 03 1f] # 音量down
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 1e, 03 1e, 03 1e, 03 1e, 03 1e, 03 1e, 03 1e, 03 1e, 03 1e] # 音量up長押し
- jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 19, 03 19] # chanel up
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 18, 03 18] # chanel down
- jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [0f 7d, 0f 7d] # 番組表
- jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 e6, 03 e6] # 戻る
- jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 7a, 03 7a] # ホーム/メニュー
- jvc T=0.516[ms] CYCLE=44.7[ms] 16bit [03 04, 03 04] # 画面表示
- jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 7c, 03 7c] # 上
- jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 5a, 03 5a] # 右
- jvc T=0.517[ms] CYCLE=44.5[ms] 16bit [03 ec, 03 ec] # 下
- jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 5b, 03 5b] # 左
- jvc T=0.515[ms] CYCLE=44.5[ms] 16bit [03 0a, 03 0a] # 決定
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 13, 03 13] # 入力切り替え
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 1c, 03 1c] # ミュート
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [0f 1c, 0f 1c] # 10キー
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [23 a0, 23 a0] # d連動データ
- jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [23 c3, 23 c3] # 青
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [23 c0, 23 c0] # 赤
- jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [23 c1, 23 c1] # 緑
- jvc T=0.516[ms] CYCLE=44.7[ms] 16bit [23 c2, 23 c2] # 黃
- jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 93, 03 93] # ワイド切換
- jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [0f 7c, 0f 7c] # 番組説明
+    jvc T=0.516[ms] CYCLE=44.5[ms] 16bit [03 17, 03 17] # 電源
+    jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 00, 03 00] # 音声切換
+    jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 03, 03 03] # オフタイマー
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 10, 03 10] # アナログ
+    jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [0f 15, 0f 15] # デジタル
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 0c, 03 0c] # BS
+    jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [0f 14, 0f 14] # CS
+    jvc T=0.515[ms] CYCLE=44.6[ms] 16bit [03 21, 03 21] # 1ch
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 22, 03 22] # 2ch
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 23, 03 23] # 3ch
+    jvc T=0.515[ms] CYCLE=44.6[ms] 16bit [03 24, 03 24] # 4ch
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 25, 03 25] # 5ch
+    jvc T=0.515[ms] CYCLE=44.6[ms] 16bit [03 26, 03 26] # 6ch
+    jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 27, 03 27] # 7ch
+    jvc T=0.515[ms] CYCLE=44.6[ms] 16bit [03 28, 03 28] # 8ch
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 29, 03 29] # 9ch
+    jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 2a, 03 2a] # 10ch
+    jvc T=0.516[ms] CYCLE=44.5[ms] 16bit [03 2b, 03 2b] # 11ch
+    jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 2c, 03 2c] # 12ch
+    jvc T=0.518[ms] CYCLE=44.6[ms] 16bit [03 1e, 03 1e] # 音量up
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 1f, 03 1f] # 音量down
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 1e, 03 1e, 03 1e, 03 1e, 03 1e, 03 1e, 03 1e, 03 1e, 03 1e] # 音量up長押し
+    jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 19, 03 19] # chanel up
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 18, 03 18] # chanel down
+    jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [0f 7d, 0f 7d] # 番組表
+    jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 e6, 03 e6] # 戻る
+    jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 7a, 03 7a] # ホーム/メニュー
+    jvc T=0.516[ms] CYCLE=44.7[ms] 16bit [03 04, 03 04] # 画面表示
+    jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 7c, 03 7c] # 上
+    jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 5a, 03 5a] # 右
+    jvc T=0.517[ms] CYCLE=44.5[ms] 16bit [03 ec, 03 ec] # 下
+    jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 5b, 03 5b] # 左
+    jvc T=0.515[ms] CYCLE=44.5[ms] 16bit [03 0a, 03 0a] # 決定
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 13, 03 13] # 入力切り替え
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [03 1c, 03 1c] # ミュート
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [0f 1c, 0f 1c] # 10キー
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [23 a0, 23 a0] # d連動データ
+    jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [23 c3, 23 c3] # 青
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [23 c0, 23 c0] # 赤
+    jvc T=0.516[ms] CYCLE=44.6[ms] 16bit [23 c1, 23 c1] # 緑
+    jvc T=0.516[ms] CYCLE=44.7[ms] 16bit [23 c2, 23 c2] # 黃
+    jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 93, 03 93] # ワイド切換
+    jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [0f 7c, 0f 7c] # 番組説明
 
 
 - Sony すごろく => SONY フォーマット
-
- sony T=0.586[ms] 20bit [15 ad 0f, 15 ad 0f, 15 ad 0f] # 電源
- sony T=0.586[ms] 20bit [16 ad 0f, 16 ad 0f, 16 ad 0f] # 開閉
- sony T=0.587[ms] 20bit [64 ad 0f, 64 ad 0f, 64 ad 0f] # 音声切換
- sony T=0.587[ms] 20bit [00 ad 0f, 00 ad 0f, 00 ad 0f] # 1ch
- sony T=0.588[ms] 20bit [01 ad 0f, 01 ad 0f, 01 ad 0f] # 2ch
- sony T=0.587[ms] 20bit [02 ad 0f, 02 ad 0f, 02 ad 0f] # 3ch
- sony T=0.587[ms] 20bit [03 ad 0f, 03 ad 0f, 03 ad 0f] # 4ch
- sony T=0.586[ms] 20bit [04 ad 0f, 04 ad 0f, 04 ad 0f] # 5ch
- sony T=0.587[ms] 20bit [05 ad 0f, 05 ad 0f, 05 ad 0f] # 6ch
- sony T=0.587[ms] 20bit [06 ad 0f, 06 ad 0f, 06 ad 0f] # 7ch
- sony T=0.588[ms] 20bit [07 ad 0f, 07 ad 0f, 07 ad 0f] # 8ch
- sony T=0.588[ms] 20bit [08 ad 0f, 08 ad 0f, 08 ad 0f] # 9ch
- sony T=0.586[ms] 20bit [09 ad 0f, 09 ad 0f, 09 ad 0f] # 10ch
- sony T=0.588[ms] 20bit [0a ad 0f, 0a ad 0f, 0a ad 0f] # 11ch
- sony T=0.586[ms] 20bit [0d ad 0f, 0d ad 0f, 0d ad 0f] # 12ch
- sony T=0.586[ms] 20bit [6c bd 00, 6c bd 00, 6c bd 00] # アナログ
- sony T=0.586[ms] 20bit [6b bd 00, 6b bd 00, 6b bd 00] # デジタル
- sony T=0.588[ms] 20bit [6a bd 00, 6a bd 00, 6a bd 00] # BS
- sony T=0.587[ms] 20bit [6e bd 00, 6e bd 00, 6e bd 00] # CS
- sony T=0.588[ms] 20bit [61 bd 00, 61 bd 00, 61 bd 00] # 10キー
- sony T=0.587[ms] 20bit [13 ad 0f, 13 ad 0f, 13 ad 0f] # channel up
- sony T=0.587[ms] 20bit [14 ad 0f, 14 ad 0f, 14 ad 0f] # channel down
- sony T=0.587[ms] 20bit [13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f] # channel up 長押し
- sony T=0.586[ms] 20bit [50 bd 00, 50 bd 00, 50 bd 00] # HDD/BD
- sony T=0.588[ms] 20bit [62 bd 00, 62 bd 00, 62 bd 00] # d連動データ
- sony T=0.587[ms] 20bit [66 bd 00, 66 bd 00, 66 bd 00] # 青
- sony T=0.586[ms] 20bit [67 bd 00, 67 bd 00, 67 bd 00] # 赤
- sony T=0.588[ms] 20bit [68 bd 00, 68 bd 00, 68 bd 00] # 緑
- sony T=0.587[ms] 20bit [69 bd 00, 69 bd 00, 69 bd 00] # 黃
- sony T=0.587[ms] 20bit [1b ad 0f, 1b ad 0f, 1b ad 0f] # 3d
- sony T=0.587[ms] 20bit [1a ad 0f, 1a ad 0f, 1a ad 0f] # アクトビラ
- sony T=0.586[ms] 20bit [16 bd 00, 16 bd 00, 16 bd 00] # 番組表
- sony T=0.588[ms] 20bit [0e ad 0f, 0e ad 0f, 0e ad 0f] # 戻る
- sony T=0.586[ms] 20bit [53 ad 0f, 53 ad 0f, 53 ad 0f] # ホーム/メニュー
- sony T=0.588[ms] 20bit [17 bd 00, 17 bd 00, 17 bd 00] # オプション
- sony T=0.586[ms] 20bit [54 ad 0f, 54 ad 0f, 54 ad 0f] # 画面表示
- sony T=0.588[ms] 20bit [5a ad 0f, 5a ad 0f, 5a ad 0f] # リンクメニュー
- sony T=0.588[ms] 20bit [79 ad 0f, 79 ad 0f, 79 ad 0f] # 上
- sony T=0.587[ms] 20bit [7c ad 0f, 7c ad 0f, 7c ad 0f] # 右
- sony T=0.587[ms] 20bit [7a ad 0f, 7a ad 0f, 7a ad 0f] # 下
- sony T=0.588[ms] 20bit [7b ad 0f, 7b ad 0f, 7b ad 0f] # 左
- sony T=0.588[ms] 20bit [0b ad 0f, 0b ad 0f, 0b ad 0f] # 決定
- sony T=0.586[ms] 20bit [18 bd 00, 18 bd 00, 18 bd 00] # シアター
- sony T=0.587[ms] 20bit [10 bd 00, 10 bd 00, 10 bd 00] # 録画リスト
- sony T=0.588[ms] 20bit [30 ad 0f, 30 ad 0f, 30 ad 0f] # |<< 前
- sony T=0.588[ms] 20bit [5c ad 0f, 5c ad 0f, 5c ad 0f] # <-.
- sony T=0.587[ms] 20bit [14 bd 00, 14 bd 00, 14 bd 00] # .->
- sony T=0.588[ms] 20bit [31 ad 0f, 31 ad 0f, 31 ad 0f] # >>| 次
- sony T=0.588[ms] 20bit [33 ad 0f, 33 ad 0f, 33 ad 0f] # << 巻き戻し
- sony T=0.587[ms] 20bit [32 ad 0f, 32 ad 0f, 32 ad 0f] # >  play
- sony T=0.588[ms] 20bit [34 ad 0f, 34 ad 0f, 34 ad 0f] # >> 早送り
- sony T=0.587[ms] 20bit [19 ad 0f, 19 ad 0f, 19 ad 0f] # 録画
- sony T=0.587[ms] 20bit [39 ad 0f, 39 ad 0f, 39 ad 0f] # || 一時停止
- sony T=0.586[ms] 20bit [38 ad 0f, 38 ad 0f, 38 ad 0f] # ■ 停止
- sony T=0.588[ms] 20bit [65 ad 0f, 65 ad 0f, 65 ad 0f] # ワイド切換
- sony T=0.587[ms] 20bit [63 ad 0f, 63 ad 0f, 63 ad 0f] # 字幕
- sony T=0.588[ms] 20bit [12 ad 0f, 12 ad 0f, 12 ad 0f] # ２画面表示
- sony T=0.588[ms] 20bit [15 bd 00, 15 bd 00, 15 bd 00] # 番組説明
+    sony T=0.586[ms] 20bit [15 ad 0f, 15 ad 0f, 15 ad 0f] # 電源
+    sony T=0.586[ms] 20bit [16 ad 0f, 16 ad 0f, 16 ad 0f] # 開閉
+    sony T=0.587[ms] 20bit [64 ad 0f, 64 ad 0f, 64 ad 0f] # 音声切換
+    sony T=0.587[ms] 20bit [00 ad 0f, 00 ad 0f, 00 ad 0f] # 1ch
+    sony T=0.588[ms] 20bit [01 ad 0f, 01 ad 0f, 01 ad 0f] # 2ch
+    sony T=0.587[ms] 20bit [02 ad 0f, 02 ad 0f, 02 ad 0f] # 3ch
+    sony T=0.587[ms] 20bit [03 ad 0f, 03 ad 0f, 03 ad 0f] # 4ch
+    sony T=0.586[ms] 20bit [04 ad 0f, 04 ad 0f, 04 ad 0f] # 5ch
+    sony T=0.587[ms] 20bit [05 ad 0f, 05 ad 0f, 05 ad 0f] # 6ch
+    sony T=0.587[ms] 20bit [06 ad 0f, 06 ad 0f, 06 ad 0f] # 7ch
+    sony T=0.588[ms] 20bit [07 ad 0f, 07 ad 0f, 07 ad 0f] # 8ch
+    sony T=0.588[ms] 20bit [08 ad 0f, 08 ad 0f, 08 ad 0f] # 9ch
+    sony T=0.586[ms] 20bit [09 ad 0f, 09 ad 0f, 09 ad 0f] # 10ch
+    sony T=0.588[ms] 20bit [0a ad 0f, 0a ad 0f, 0a ad 0f] # 11ch
+    sony T=0.586[ms] 20bit [0d ad 0f, 0d ad 0f, 0d ad 0f] # 12ch
+    sony T=0.586[ms] 20bit [6c bd 00, 6c bd 00, 6c bd 00] # アナログ
+    sony T=0.586[ms] 20bit [6b bd 00, 6b bd 00, 6b bd 00] # デジタル
+    sony T=0.588[ms] 20bit [6a bd 00, 6a bd 00, 6a bd 00] # BS
+    sony T=0.587[ms] 20bit [6e bd 00, 6e bd 00, 6e bd 00] # CS
+    sony T=0.588[ms] 20bit [61 bd 00, 61 bd 00, 61 bd 00] # 10キー
+    sony T=0.587[ms] 20bit [13 ad 0f, 13 ad 0f, 13 ad 0f] # channel up
+    sony T=0.587[ms] 20bit [14 ad 0f, 14 ad 0f, 14 ad 0f] # channel down
+    sony T=0.587[ms] 20bit [13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f, 13 ad 0f] # channel up 長押し
+    sony T=0.586[ms] 20bit [50 bd 00, 50 bd 00, 50 bd 00] # HDD/BD
+    sony T=0.588[ms] 20bit [62 bd 00, 62 bd 00, 62 bd 00] # d連動データ
+    sony T=0.587[ms] 20bit [66 bd 00, 66 bd 00, 66 bd 00] # 青
+    sony T=0.586[ms] 20bit [67 bd 00, 67 bd 00, 67 bd 00] # 赤
+    sony T=0.588[ms] 20bit [68 bd 00, 68 bd 00, 68 bd 00] # 緑
+    sony T=0.587[ms] 20bit [69 bd 00, 69 bd 00, 69 bd 00] # 黃
+    sony T=0.587[ms] 20bit [1b ad 0f, 1b ad 0f, 1b ad 0f] # 3d
+    sony T=0.587[ms] 20bit [1a ad 0f, 1a ad 0f, 1a ad 0f] # アクトビラ
+    sony T=0.586[ms] 20bit [16 bd 00, 16 bd 00, 16 bd 00] # 番組表
+    sony T=0.588[ms] 20bit [0e ad 0f, 0e ad 0f, 0e ad 0f] # 戻る
+    sony T=0.586[ms] 20bit [53 ad 0f, 53 ad 0f, 53 ad 0f] # ホーム/メニュー
+    sony T=0.588[ms] 20bit [17 bd 00, 17 bd 00, 17 bd 00] # オプション
+    sony T=0.586[ms] 20bit [54 ad 0f, 54 ad 0f, 54 ad 0f] # 画面表示
+    sony T=0.588[ms] 20bit [5a ad 0f, 5a ad 0f, 5a ad 0f] # リンクメニュー
+    sony T=0.588[ms] 20bit [79 ad 0f, 79 ad 0f, 79 ad 0f] # 上
+    sony T=0.587[ms] 20bit [7c ad 0f, 7c ad 0f, 7c ad 0f] # 右
+    sony T=0.587[ms] 20bit [7a ad 0f, 7a ad 0f, 7a ad 0f] # 下
+    sony T=0.588[ms] 20bit [7b ad 0f, 7b ad 0f, 7b ad 0f] # 左
+    sony T=0.588[ms] 20bit [0b ad 0f, 0b ad 0f, 0b ad 0f] # 決定
+    sony T=0.586[ms] 20bit [18 bd 00, 18 bd 00, 18 bd 00] # シアター
+    sony T=0.587[ms] 20bit [10 bd 00, 10 bd 00, 10 bd 00] # 録画リスト
+    sony T=0.588[ms] 20bit [30 ad 0f, 30 ad 0f, 30 ad 0f] # |<< 前
+    sony T=0.588[ms] 20bit [5c ad 0f, 5c ad 0f, 5c ad 0f] # <-.
+    sony T=0.587[ms] 20bit [14 bd 00, 14 bd 00, 14 bd 00] # .->
+    sony T=0.588[ms] 20bit [31 ad 0f, 31 ad 0f, 31 ad 0f] # >>| 次
+    sony T=0.588[ms] 20bit [33 ad 0f, 33 ad 0f, 33 ad 0f] # << 巻き戻し
+    sony T=0.587[ms] 20bit [32 ad 0f, 32 ad 0f, 32 ad 0f] # >  play
+    sony T=0.588[ms] 20bit [34 ad 0f, 34 ad 0f, 34 ad 0f] # >> 早送り
+    sony T=0.587[ms] 20bit [19 ad 0f, 19 ad 0f, 19 ad 0f] # 録画
+    sony T=0.587[ms] 20bit [39 ad 0f, 39 ad 0f, 39 ad 0f] # || 一時停止
+    sony T=0.586[ms] 20bit [38 ad 0f, 38 ad 0f, 38 ad 0f] # ■ 停止
+    sony T=0.588[ms] 20bit [65 ad 0f, 65 ad 0f, 65 ad 0f] # ワイド切換
+    sony T=0.587[ms] 20bit [63 ad 0f, 63 ad 0f, 63 ad 0f] # 字幕
+    sony T=0.588[ms] 20bit [12 ad 0f, 12 ad 0f, 12 ad 0f] # ２画面表示
+    sony T=0.588[ms] 20bit [15 bd 00, 15 bd 00, 15 bd 00] # 番組説明
 
 
 
