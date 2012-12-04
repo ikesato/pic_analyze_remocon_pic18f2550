@@ -41,6 +41,7 @@ class RemoconAnalyzer
   end
 
   def self.make_send_data(str)
+    str = str.sub(/#.*$/,"").strip
     ary = SonyFormat.make_send_ary(str) ||
           NECFormat.make_send_ary(str) ||
           JVCFormat.make_send_ary(str) ||
