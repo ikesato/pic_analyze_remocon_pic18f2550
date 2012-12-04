@@ -2,6 +2,7 @@
 
 require "sony_format"
 require "nec_format"
+require "jvc_format"
 require "raw_format"
 
 class RemoconAnalyzer
@@ -29,6 +30,7 @@ class RemoconAnalyzer
     @format = nil
     @format ||= SonyFormat.parse(@raw.dup)
     @format ||= NECFormat.parse(@raw.dup)
+    @format ||= JVCFormat.parse(@raw.dup)
    #@format ||= KadenkyoFormat.parse(@raw.dup)
     @format ||= RawFormat.parse(@raw.dup)
     @format
@@ -41,6 +43,7 @@ class RemoconAnalyzer
   def self.make_send_data(str)
     ary = SonyFormat.make_send_ary(str) ||
           NECFormat.make_send_ary(str) ||
+          JVCFormat.make_send_ary(str) ||
           RawFormat.make_send_ary(str) ||
           nil
     return nil if ary.nil?
