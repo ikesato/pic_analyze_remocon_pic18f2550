@@ -75,8 +75,7 @@ PIC タイマー0 について
 
 datas
 -----
-- Aiwa リモコン => NECフォーマット
-
+- Aiwa リモコン => NECフォーマット  
     nec T=0.559[ms] 42bit [7b 80 f0 03 fc 03, REP8T] # 電源  
     nec T=0.561[ms] 42bit [7b 80 f0 03 fc 03, REP8T, REP8T, REP8T, REP8T] # 電源長押  
     nec T=0.558[ms] 42bit [7b 80 f0 3b c4 03, REP8T] # テレビ/ビデオ  
@@ -109,7 +108,7 @@ datas
 
 
 
-- Victor テレビリモコン => JVCフォーマット
+- Victor テレビリモコン => JVCフォーマット  
     jvc T=0.516[ms] CYCLE=44.5[ms] 16bit [03 17, 03 17] # 電源  
     jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [03 00, 03 00] # 音声切換  
     jvc T=0.517[ms] CYCLE=44.7[ms] 16bit [03 03, 03 03] # オフタイマー  
@@ -155,8 +154,7 @@ datas
     jvc T=0.517[ms] CYCLE=44.6[ms] 16bit [0f 7c, 0f 7c] # 番組説明  
 
 
-- Sony すごろく => SONY フォーマット
-
+- Sony すごろく => SONY フォーマット  
     sony T=0.586[ms] 20bit [15 ad 0f, 15 ad 0f, 15 ad 0f] # 電源  
     sony T=0.586[ms] 20bit [16 ad 0f, 16 ad 0f, 16 ad 0f] # 開閉  
     sony T=0.587[ms] 20bit [64 ad 0f, 64 ad 0f, 64 ad 0f] # 音声切換  
