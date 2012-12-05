@@ -9,7 +9,7 @@ require "fixnum_ary"
 class SonyFormat
   T = 0.6 # [ms]
   FRAME_CYCLE = 45.0 # 1フレームの長さ [ms]
-  NAME = "sony"
+  NAME = "SONY"
 
   def self.parse(raw)
     i = SonyFormat.new

@@ -10,7 +10,7 @@ require "fixnum_ary"
 class JVCFormat
   T = 0.51556 # [ms]
   FRAME_CYCLE = 45.0 # リーダを含まない1フレームの長さ（この値以上ならOK） [ms]
-  NAME = "jvc"
+  NAME = "JVC"
 
   def self.parse(raw)
     i = JVCFormat.new

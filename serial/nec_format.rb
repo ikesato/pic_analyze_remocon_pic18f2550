@@ -10,7 +10,7 @@ require "fixnum_ary"
 class NECFormat
   T = 0.56 # [ms]
   FRAME_CYCLE = 108.0 # 1フレームの長さ [ms]
-  NAME = "nec"
+  NAME = "NEC"
   REPEATER4T = "REP4T"
   REPEATER8T = "REP8T"
 
