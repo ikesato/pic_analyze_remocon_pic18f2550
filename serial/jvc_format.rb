@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require "fixnum_ary"
+require "int_ary"
 
 # T:0.51556ms (1T=97)
 # Leader : H16T L8T

@@ -1,4 +1,4 @@
-class Fixnum
+class Integer
   def to_a
     v=self
     ret = []
