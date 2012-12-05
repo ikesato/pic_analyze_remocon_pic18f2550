@@ -116,12 +116,10 @@ class NECFormat
             (4*T - leader[1]).abs/4*T < 0.1
         tsum += leader[0]+leader[1]
         tcount += 16+4
-        # TODO:実際のリモコンで試したい
-        raise "TODO:implement"
-        _cycle = read_repeater(raw,cycle)
-        return false if _cycle.nil?
+        cycle = read_repeater(raw,cycle)
+        return false if cycle.nil?
         @data[:frames] << REPEATER4T
-        frame_cycle << _cycle
+        frame_cycle << cycle
       else
         return false
       end
@@ -207,9 +205,9 @@ class NECFormat
     if raw.length>0 || force_check
       # データが終端でなければ長さチェックを行う
       return nil if (FRAME_CYCLE - (cycle+frame_leader)).abs / FRAME_CYCLE > 0.1
+      cycle + frame_leader
     else
-      cycle = FRAME_CYCLE-frame_leader
+      FRAME_CYCLE
     end
-    cycle
   end
 end
