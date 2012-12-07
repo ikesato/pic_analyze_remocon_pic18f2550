@@ -9,7 +9,12 @@ require "int_ary"
 #   body0(8byte), sepa,
 #   body1(8byte), sepa,
 #   body2(19byte)
-#   trailer
+#   trailer(hi only)
+#
+#   or
+#
+#   header(10bit), sepa0,
+#   body0(8byte)
 # 
 # 0      : H1T L1T
 # 1      : H1T L3T
@@ -24,7 +29,11 @@ class DaikinFormat
   end
 
   def _parse(raw)
-    return false if raw.length < 10+4+ 64+4+ 64+4 + 64*2 + 24 + 2
+    p raw.length
+    unless raw.length == 10+4+ 128+4+ 128+4 + 128*2 + 48 + 2 ||
+           raw.length == 10+4+ 128+ 2
+      return false
+    end
     return read_frame(raw)
   end
 
@@ -46,11 +55,13 @@ class DaikinFormat
     frames += [t]*10
     frames += [0.45, 25.32, 3.48, 1.71] # separator0
     frames += make_body(ary[0], t, 64)
-    frames += [0.44, 34.68, 3.48, 1.71] # separator
-    frames += make_body(ary[1], t, 64)
-    frames += [0.44, 34.68, 3.48, 1.71] # separator
-    frames += make_body(ary[2], t, 19*8)
-    frames += [1*T, 320] # trailer
+    if ary.length>1
+      frames += [0.44, 34.68, 3.48, 1.71] # separator
+      frames += make_body(ary[1], t, 64)
+      frames += [0.44, 34.68, 3.48, 1.71] # separator
+      frames += make_body(ary[2], t, 19*8)
+    end
+    frames += [1*T] # trailer
     frames
   end
 
@@ -105,7 +116,17 @@ class DaikinFormat
     @data[:frames] << code
 
     # separator
-    return false if read_separator(raw)==false
+    v=raw[0]
+    rest = raw.length
+    if read_separator(raw)
+      ;
+    elsif (1*T - v).abs/1*T <= 0.2 && rest == 2
+      # 終わり
+      @data[:t] = tsum / tcount
+      return true
+    else
+      return false
+    end
 
     # body1
     code, _tsum, _tcount = read_code(raw,64)
