@@ -29,7 +29,6 @@ class DaikinFormat
   end
 
   def _parse(raw)
-    p raw.length
     unless raw.length == 10+4+ 128+4+ 128+4 + 128*2 + 48 + 2 ||
            raw.length == 10+4+ 128+ 2
       return false
