@@ -8,6 +8,13 @@ class Integer
     end while v!=0
     ret
   end
+
+  def to_hex
+    return sprintf("%02xh",self) if self < (1 << 8)
+    return sprintf("%04xh",self) if self < (1 << 16)
+    return sprintf("%08xh",self) if self < (1 << 32)
+    sprintf("%xh",self)
+  end
 end
 
 class Array
@@ -19,6 +26,11 @@ class Array
       count += 8
     }
     ret
+  end
+  def to_hex
+    self.map{|m|
+      sprintf("%02x",m)
+    }.join(" ")
   end
 end
 
