@@ -339,6 +339,7 @@ p [body2[10]&0x3, body2[11]&0x38, body2[12]&0x80].to_hex
     elsif body2[13] == 0x08
       self.healthful_mode = true
     else
+# TODO:    DAIKIN T=0.425[ms] [11 da 27 00 c5 00 20 f7, 11 da 27 00 42 00 00 54, 11 da 27 00 00 49 3a 00 a0 00 3c 00 60 00 00 c1 a0 00 32] # 快眠1回 (運転中, 29度, 暖房, 風量自動, フィルター掃除, 快眠1時間後)  
       raise "invalid format byte13. [#{body2[13].to_hex}]"
     end
     if self.healthful_mode && self.air_volume!=0xa
