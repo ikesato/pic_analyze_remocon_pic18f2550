@@ -15,6 +15,23 @@ class Integer
     return sprintf("%08xh",self) if self < (1 << 32)
     sprintf("%xh",self)
   end
+
+  def to_bin
+    a=[]
+    i=0
+    if self < (1 << 8)
+      e = 0xff
+    elsif self < (1 << 16)
+      e = 0xffff
+    else
+      e = 0xffffffff
+    end
+    while (1 << i) < e
+      a << ((self & (1 << i)) != 0 ? 1 : 0)
+      i+=1
+    end
+    a.reverse.join
+  end
 end
 
 class Array
@@ -29,8 +46,35 @@ class Array
   end
   def to_hex
     self.map{|m|
-      sprintf("%02x",m)
+      if m.kind_of?(Array)
+        "[#{m.to_hex}]"
+      elsif m.kind_of?(Integer)
+        sprintf("%02x",m)
+      else
+        m.class
+      end
     }.join(" ")
+  end
+
+  def to_bin
+    self.map{|m|
+      if m.kind_of?(Array)
+        "[#{m.to_bin}]"
+      elsif m.kind_of?(Integer)
+        m.to_bin
+      else
+        m.class
+      end
+    }.join(" ")
+  end
+end
+
+class String
+  def to_a_from_hex
+    a = split(" ")
+    a.map {|m|
+      m.hex
+    }
   end
 end
 
