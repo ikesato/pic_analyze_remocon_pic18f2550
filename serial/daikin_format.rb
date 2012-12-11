@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require "int_ary"
+require "daikin_remocon"
 
 # T:0.4266666ms (1T=80)
 #
@@ -42,6 +43,10 @@ class DaikinFormat
       f.map{|v| sprintf("%02x",v)}.join(" ")
     }
     "#{NAME} T=#{t}[ms] [#{frames.join(", ")}]"
+  end
+
+  def verbose
+    DaikinRemocon.new(@data).report
   end
 
   def self.make_send_ary(str)

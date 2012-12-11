@@ -42,6 +42,15 @@ class RemoconAnalyzer
     @format.dump
   end
 
+  def verbose
+    begin
+      @format.verbose if @format.respond_to?(:verbose)
+    rescue => e
+      puts e
+      puts e.backtrace
+    end
+  end
+
   def self.make_send_data(str)
     str = str.sub(/#.*$/,"").strip
     ary = SonyFormat.make_send_ary(str) ||

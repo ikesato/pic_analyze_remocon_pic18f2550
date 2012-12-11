@@ -8,7 +8,10 @@ class DaikinRemocon
   attr_accessor :body0_only
 
   attr_accessor :power # true:on false:off
+  attr_accessor :reset_mode # true:on false:off
+  attr_accessor :clean_filter # true:on false:off
   attr_accessor :inner_clean_mode # true:on false:off
+  attr_accessor :kaze_nice # true:on false:off
   attr_accessor :timer_auto_pon_mode # true:on false:off
   attr_accessor :timer_auto_poff_mode # true:on false:off
   attr_accessor :air_mode # 0:標準(自動) 1:? 2:標準(ドライ) 3:冷房 4:暖房 5:? 6:送風 7:?
@@ -21,6 +24,7 @@ class DaikinRemocon
 
   def initialize(data)
     from_raw_data(data)
+    verify!(data)
   end
 
   def from_raw_data(data)
@@ -35,16 +39,124 @@ class DaikinRemocon
       parse_body1(bodies[1])
       parse_body2(bodies[2])
       check_sum(bodies[1])
-      #check_sum(bodies[2])
+      check_sum(bodies[2])
     end
+  end
+
+  def verify!(data)
+    v = to_raw_data
+    if v != data
+      raise "verify failed\nt=>#{v[:t]}\nframes=>#{v[:frames].to_hex}\n#{report}"
+    end
+  end
+  
+  def to_raw_data
+    ret = {}
+    ret[:t] = tcycle
+    ret[:frames] = []
+
+    # body0
+    body0 = [0x11, 0xda, 0x27, 0x00]
+    body0 << (self.body0_only ? 0x84 : 0xc5)
+    if self.body0_only==false
+      body0 << 0
+    elsif self.reset_mode && !self.clean_filter
+      body0 << 0x13
+    elsif !self.reset_mode && self.clean_filter
+      body0 << 0x14
+    end
+    if self.body0_only
+      body0 << 0
+    else
+      body0 << (0x20 |
+                (self.inner_clean_mode ? 0x8 : 0) |
+                (self.kaze_nice ? 0x10 : 0))
+    end
+    body0 << (body0.inject(:+) & 0xff)
+    ret[:frames] << body0
+
+    return ret if self.body0_only
+
+    # body1
+    ret[:frames] << [0x11, 0xda, 0x27, 0x00, 0x42, 0x00, 0x00, 0x54]
+
+    # body2
+    body2 = [0x11, 0xda, 0x27, 0x00, 0x00]
+
+    # byte5
+    b = 0x08
+    b |= 0x01 if self.power
+    b |= 0x02 if self.timer_auto_pon_mode
+    b |= 0x04 if self.timer_auto_poff_mode
+    b |= (self.air_mode << 4)
+    body2 << b
+
+    # byte6,7
+    case self.air_mode
+    when 0, 2 # 標準(ドライ) / 標準(自動)
+      b = 0xc0
+      bb = self.temperature
+      bb += 16 if bb < 0
+      b |= (bb << 1)
+      body2 << b
+      body2 << 0x80
+    when 3, 4 # 冷房, 暖房
+      body2 << (self.temperature << 1)
+      body2 << 0x00
+    when 6 # 送風
+      body2 << 0x32
+      body2 << 0x00
+    end
+
+    # byte8
+    b = 0
+    b |= 0xf if self.air_direction_mode
+    b |= self.air_volume << 4
+    body2 << b
+
+    # byte9
+    body2 << 0x00
+    b = [0,0,0]
+    if !self.timer_auto_pon_mode
+      b[0] |= 0
+      b[1] |= (0x8>>2)
+      b[1] |= (1 << 2)
+    else
+      h = self.timer_on_after - 1
+      b[0] |= ((16-(h+1)) << 2)
+      b[0] |= ((h&0x3) << 6)
+      b[1] |= ((h&0xc) >> 2)
+    end
+
+    if !self.timer_auto_poff_mode
+      b[2] |= (0x8 << 2)
+      b[2] |= (1 << 6)
+    else
+      h = self.timer_off_after - 1
+      ih = (16-(h+1))
+      b[1] |= ((ih&0x3) << 6)
+      b[2] |= ((ih&0xc) >> 2)
+      b[2] |= (h << 2)
+    end
+    body2 += b
+
+    # byte10,11,12
+    ret[:frames] << body2
+    ret
   end
 
   def report
     ret = <<EOF
-t                    : #{tcycle}
+t                    : #{sprintf("%.3f",tcycle)}[ms]
 body0_only           : #{body0_only}
-power                : #{power}
+reset_mode           : #{reset_mode}
+clean_filter         : #{clean_filter}
 inner_clean_mode     : #{inner_clean_mode}
+kaze_nice            : #{kaze_nice}
+EOF
+    if body0_only==false
+      ret += <<EOF
+power                : #{power}
 timer_auto_pon_mode  : #{timer_auto_pon_mode}
 timer_auto_poff_mode : #{timer_auto_poff_mode}
 air_mode             : #{report_air_mode(air_mode)}
@@ -55,6 +167,7 @@ timer_on_after       : #{timer_on_after}
 timer_off_after      : #{timer_off_after}
 healthful_mode       : #{healthful_mode}
 EOF
+    end
     ret
   end
 
@@ -67,16 +180,44 @@ EOF
   end
 
   def parse_body0(body0)
-    if body0 == [0x11, 0xda, 0x27, 0x00, 0xc5, 0x00, 0x20, 0xf7]
-      self.inner_clean_mode = false
-    elsif body0 == [0x11, 0xda, 0x27, 0x00, 0xc5, 0x00, 0x28, 0xff]
-      self.inner_clean_mode = true
-    else
-      raise "invalid body0 format [#{body0.to_hex}]"
+    if body0[0,4] != [0x11, 0xda, 0x27, 0x00]
+      raise "invalid body0 byte0-4 format [#{body0[0,4].to_hex}]"
     end
-    # TODO:風ナイス
-    # TODO:フィルター掃除
-    # TODO:リセット
+    if body0[4] == 0xc5
+      raise "need body1 and body2 [#{body0.to_hex}]" if self.body0_only == true
+    elsif body0[4] == 0x84
+      raise "body1 and body2 doesn't need [#{body0.to_hex}]" if self.body0_only == false
+    else
+      raise "invalid body0 byte4 [#{body0.to_hex}]"
+    end
+
+    if body0[5] == 0
+      raise "body0 byte5 must be 0x00 [#{body0.to_hex}]" if self.body0_only == true
+      self.reset_mode = false
+      self.clean_filter = false
+    else
+      if body0[5] == 0x13
+        self.reset_mode = true
+        self.clean_filter = false
+      elsif body0[5] == 0x14
+        self.reset_mode = false
+        self.clean_filter = true
+      else
+        raise "body0 byte5 must be 0x13 or 0x14 [#{body0.to_hex}]"
+      end
+    end
+
+    if body0[4] == 0x84
+      if body0[6] != 0x00
+        raise "invalid body0 format (84h) [#{body0.to_hex}]"
+      end
+    else
+      if body0[6] & 0xe7 != 0x20
+        raise "invalid body0 format (c5h) [#{body0.to_hex}]"
+      end
+    end
+    self.inner_clean_mode = (body0[6] & 0x8 != 0)
+    self.kaze_nice = (body0[6] & 0x10 != 0)
   end
 
   def parse_body1(body1)
@@ -92,7 +233,7 @@ EOF
     end
 
     # byte5
-    self.power = (body2[5] & (1 << 0) != 0)
+    self.power = (body2[5] & 0x1 != 0)
     if body2[5] & 0x88 != 0x08
       raise "invalid format byte5.3,7 [#{body2[5].to_hex}]"
     end
@@ -152,6 +293,8 @@ EOF
     #byte10,11,12
     #タイマー入、タイマー切の時間
     if body2[10]&0x3 != 0 || body2[11]&0x38 != 0 || body2[12]&0x80 != 0
+p "hogeeeeee"
+p [body2[10]&0x3, body2[11]&0x38, body2[12]&0x80].to_hex
       raise "invalid format byte10-12 [#{body2[10,3].to_hex}]"
     end
     #タイマー入

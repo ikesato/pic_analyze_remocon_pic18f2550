@@ -14,15 +14,20 @@ def usage()
   puts "Options:"
   puts "  -b, --baud_rate specify the baud rate of serial communication"
   puts "                  default is 19200"
+  puts "  -v, --verbose   output verbose format"
   puts "  -h, --help      display this help and exit"
   exit 1
 end
 
 debug=false
+verbose=false
 SPEED=19200
 OptionParser.new {|opt|
   opt.on("--debug") {
     debug=true
+  }
+  opt.on("--verbose") {
+    verbose=true
   }
   opt.on("--help") {
     usage
@@ -48,6 +53,7 @@ Thread.new do
       if line.index("received,")==0
         r=RemoconAnalyzer.parse(line)
         puts r.dump
+        puts r.verbose if verbose
         puts line if debug
       elsif line.index("echo,")==0
         puts line if debug
