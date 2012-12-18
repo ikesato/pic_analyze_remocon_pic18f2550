@@ -83,7 +83,7 @@ class DaikinRemocon
     # body2
     body2 = [0x11, 0xda, 0x27, 0x00, 0x00]
 
-    # byte5
+    # body2:byte5
     b = 0x08
     b |= 0x01 if self.power
     b |= 0x02 if self.timer_auto_pon_mode
@@ -91,7 +91,7 @@ class DaikinRemocon
     b |= (self.air_mode << 4)
     body2 << b
 
-    # byte6,7
+    # body2:byte6,7
     case self.air_mode
     when 0, 2 # 標準(ドライ) / 標準(自動)
       b = 0xc0
@@ -108,14 +108,16 @@ class DaikinRemocon
       body2 << 0x00
     end
 
-    # byte8
+    # body2:byte8
     b = 0
     b |= 0xf if self.air_direction_mode
     b |= self.air_volume << 4
     body2 << b
 
-    # byte9
+    # body2:byte9
     body2 << 0x00
+
+    # body2:byte10,11,12
     b = [0,0,0]
     if !self.timer_auto_pon_mode
       b[0] |= 0
@@ -140,7 +142,16 @@ class DaikinRemocon
     end
     body2 += b
 
-    # byte10,11,12
+    # body2:byte13
+    body2 << (self.healthful_mode ? 0x08 : 0)
+
+    # body2:byte14-17
+    body2 += [0x00, 0xc1, 0x80, 0x00]
+
+    # body2:byte18
+    body2 << calc_check_sum(body2)
+
+    # body2
     ret[:frames] << body2
     ret
   end
@@ -177,6 +188,10 @@ EOF
     if ary.last != (sum & 0xff)
       raise "check sum doesn't match [#{ary.to_hex}]"
     end
+  end
+
+  def calc_check_sum(ary)
+    ary.inject(:+) & 0xff
   end
 
   def parse_body0(body0)
