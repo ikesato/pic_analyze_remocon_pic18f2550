@@ -15,6 +15,7 @@ def usage()
   puts "  -b, --baud_rate specify the baud rate of serial communication"
   puts "                  default is 19200"
   puts "  -v, --verbose   output verbose format"
+  puts "  -d, --debug     debug mode"
   puts "  -h, --help      display this help and exit"
   exit 1
 end
