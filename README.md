@@ -16,7 +16,7 @@
 
 回路図
 =====
-![Alt text](tree/master/doc/analyze_remocon/schematic.png)
+![Alt text](/ikesato/pic_analyze_remocon_pic18f2550/blob/master/doc/analyze_remocon/schematic.png)
 
 
 Hardwares
