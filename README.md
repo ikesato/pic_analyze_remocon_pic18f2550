@@ -16,7 +16,12 @@
 
 回路図
 =====
-![Alt text](/doc/analyze_remocon/schematic.png)
+![回路図](/ikesato/pic_analyze_remocon_pic18f2550/blob/master/doc/analyze_remocon/schematic.png)
+
+配線
+====
+![配線](/ikesato/pic_analyze_remocon_pic18f2550/blob/master/doc/analyze_remocon/analyze_remocon.png)
+
 
 Hardwares
 ---------
