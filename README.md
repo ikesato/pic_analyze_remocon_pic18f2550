@@ -78,6 +78,8 @@
  Windows の場合の USBドライバ （動作未確認）
 - serial ディレクトリ  
  リモコン解析ツール  
- ruby 製です。1.9.x で作成してますが、たぶん 1.8.x でも動くはず。
+ ruby 製です。1.9.x で作成してますが、たぶん 1.8.x , 2.x でも動くはず。  
+ - 必要な gem  
+  serialport, optparse
 - hex ファイル  
  Firmware/MPLAB.X/dist/PICDEM_FSUSB/production/MPLAB.X.production.hex
